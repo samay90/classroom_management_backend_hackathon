@@ -5,7 +5,7 @@ const lang = require("../../lang/lang.json")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const {isEmail,isPassword} = require("../helpers/functions/credentials");
-const { checkUniqueFlag, createUser, checkEmailOrPhoneNo } = require('../modules/auth');
+const { checkUniqueFlag, createUser, checkEmailOrPhoneNo, getPassword, getTokenDetails } = require('../modules/auth');
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotEnv = require("dotenv")
@@ -23,6 +23,15 @@ authRouter.post("/signup",async (req,res)=>{
             data:{}
         })
     }else{
+        if (!(typeof(body.first_name)=="string" && typeof(body.last_name)=="string" && typeof(body.email)=="string" && typeof(body.password)=="string" && typeof(body.phone_no)=="string")){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.STRING_VALUES,
+                data:{}
+            })
+        }else{
+            
         const lengthCheckerResponse = lengthChecker(body,rules)
         if (lengthCheckerResponse.error){
             res.status(400).send({
@@ -94,6 +103,8 @@ authRouter.post("/signup",async (req,res)=>{
                 }
             }
         }
+    
+        }
     }
 })
 authRouter.post("/login",async (req,res)=>{
@@ -106,17 +117,54 @@ authRouter.post("/login",async (req,res)=>{
             data:{}
         })
     }else{
-        const checkEmailOrPhoneNoResponse = await checkEmailOrPhoneNo({authenticator:body.authenticator})
-        if (checkEmailOrPhoneNoResponse.flag==0){
-            res.status(401).send({
-                status:401,
+        if (!(typeof(body.authenticator)=="string" && typeof(body.password)=="string")){
+            res.status(400).send({
+                status:400,
                 error:true,
-                message:lang.INVALID_AUTHENTICATOR,
+                message:lang.STRING_VALUES,
                 data:{}
             })
-        }else{
-            console.log(checkEmailOrPhoneNoResponse);
-            
+        }else{ 
+            const checkEmailOrPhoneNoResponse = await checkEmailOrPhoneNo({authenticator:body.authenticator})
+            if (checkEmailOrPhoneNoResponse.flag==0){
+                res.status(401).send({
+                    status:401,
+                    error:true,
+                    message:lang.INVALID_AUTHENTICATOR,
+                    data:{}
+                })
+            }else{
+                const getPasswordResponse = await getPassword({authenticator:body.authenticator})
+                if (getPasswordResponse){
+                    const passFlag = bcrypt.compareSync(body.password,getPasswordResponse.password)
+                    if (passFlag){
+                        const getTokenDetailsResponse = await getTokenDetails({authenticator:body.authenticator})
+                        const token = jwt.sign({...getTokenDetailsResponse},process.env.TOKEN_SECRET,{expiresIn:"100hr"})
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Logged In!!",
+                            data:{
+                                token:token
+                            }
+                        })                        
+                    }else{
+                        res.status(401).send({
+                            status:401,
+                            error:true,
+                            message:lang.UNAUTHORISED_ACCESS,
+                            data:{}
+                        })
+                    }
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
+            }
         }
     }
 })

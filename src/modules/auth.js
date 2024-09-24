@@ -28,7 +28,7 @@ const createUser = ({email,phone_no,password,first_name,last_name}) =>{
 }
 const checkEmailOrPhoneNo = ({authenticator}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from users where email=? or phone_no=?;`;
+        const q = `select count(*) as flag from users where (email=? or phone_no=?) and is_deleted=0 and is_verified=1;`;
         db.query(q,[authenticator,authenticator],(err,result)=>{
             if (err){
                 reject(err)
@@ -38,4 +38,28 @@ const checkEmailOrPhoneNo = ({authenticator}) =>{
         })
     })
 }
-module.exports ={checkUniqueFlag,createUser,checkEmailOrPhoneNo}
+const getPassword = ({authenticator}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select password from users where email=? or phone_no=?;`;
+        db.query(q,[authenticator,authenticator],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getTokenDetails = ({authenticator}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select user_id,email,phone_no from users where email=? or phone_no=?;`;
+        db.query(q,[authenticator,authenticator],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports ={checkUniqueFlag,getPassword,getTokenDetails,createUser,checkEmailOrPhoneNo}

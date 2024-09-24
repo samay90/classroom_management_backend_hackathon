@@ -1,0 +1,10 @@
+{
+    "PLEASE_ENTER":"Please enter ",
+    "INVALID_EMAIL":"Please enter valid email. It must contain '@' followed by '.'!!",
+    "INVALID_PASSWORD":"Please enter valid password. It must contain a special character!!",
+    "DUBLICATE_EMAIL_OR_PHONENO":"Please enter unique email and phone_no. It already exist!!",
+    "INVALID_PHONE_NO":"Please enter phone_no. It must be a number!!",
+    "SOMETHING_WENT_WRONG":"Something went wrong. Internal server error!!",
+    "INVALID_LOGIN_CREDENTIALS":"Email or phone_no and password is requried for login!!",
+    "INVALID_AUTHENTICATOR":"Invalid authenticator. No such user exist!!"
+}

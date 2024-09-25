@@ -7,12 +7,16 @@
     "SOMETHING_WENT_WRONG":"Something went wrong. Internal server error!!",
     "INVALID_LOGIN_CREDENTIALS":"Email or phone_no and password is requried for login!!",
     "INVALID_AUTHENTICATOR":"Invalid authenticator. No such user exist!!",
-    "STRING_VALUES":"All the fields should in the format of string!!",
+    "STRING_VALUES":"Fields should be in the format of string!!",
+    "NUMBER_VALIES":"Fields should be in the format of number!!",
     "UNAUTHORISED_ACCESS":"Unauthorised access. Invalid password found!!",
     "NO_TOKEN_FOUND":"Unauthorised access. No token found!!",
     "INVALID_TOKEN":"Unauthorised access. Invalid token!!",
     "TOKEN_EXPIRED":"Authentication token is expire. Please login again!!",
     "NO_SUCH_EXIST":"No such user exist!!",
     "USER_DELETED":"Your account is being deleted!!",
-    "USER_UNVERIFIED":"Your account is being banned due to security reasons!!"
+    "USER_UNVERIFIED":"Your account is being banned due to security reasons!!",
+    "ALREADY_DOCTOR":"Your are already a doctor!!",
+    "INVALID_TIME":"Invalid time. It should be in between 0 and 24 hrs!!",
+    "INVALID_CLOSE_TIME":"Invalid close_time. It should be greater then open_time!!"
 }

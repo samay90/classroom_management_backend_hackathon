@@ -3,5 +3,8 @@
     "phone_no":15,
     "first_name":50,
     "last_name":50,
-    "bio":200
+    "bio":200,
+    "hospital":200,
+    "specilazation":45,
+    "education":200
 }

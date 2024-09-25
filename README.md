@@ -17,3 +17,11 @@
         - authenticator should be either of email and phone_no
         - Password should be valid
     - Response : token
+3) Apply for Doctor (/user/apply/doctor)
+    - Header : Bearer Token
+    - Allowed Fields : hospital,specialization,education,open_time,close_time,
+    - Required Fields : All allowed fields
+    - Conditions :
+        - Hospital, specialization, education should in string format
+        - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
+        - Doctor should have applied before

@@ -1,7 +1,7 @@
 <h1>Appointment Booking Backend</h1>
 <h2>Release Notes</h2>
 
-1) SignUp (/auth/signup)
+1) SignUp (POST) (/auth/signup)
     - Allowed Fields : email, phone_no, password, first_name, last_name
     - Required Fields : All Allowed Fields
     - Conditions :
@@ -9,7 +9,7 @@
         - Email, Phone_no should have its basic format.
         - Password should contain atleast 1 special character.
     - Response : token
-2) Login (/auth/login)
+2) Login (POST) (/auth/login)
     - Allowed Fields : authenticator, password
     - Required Fields : All Allowed Fields
     - Conditions :
@@ -17,7 +17,7 @@
         - authenticator should be either of email and phone_no
         - Password should be valid
     - Response : token
-3) Apply for Doctor (/user/apply/doctor)
+3) Apply for Doctor (POST) (/user/apply/doctor)
     - Header : Bearer Token
     - Allowed Fields : hospital,specialization,education,open_time,close_time,
     - Required Fields : All allowed fields
@@ -25,7 +25,7 @@
         - Hospital, specialization, education should in string format
         - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
         - Doctor should have applied before
-4) Update Profile (/user/update)
+4) Update Profile (POST) (/user/profile/update)
     - Header : Bearer Token
     - Allowed Fields : first_name, last_name, dob, bio, profile, (education, specialization, hospital, open_time, close_time) <- For Doctors
     - Required Fields : Atleast 1 field from Allowed Fields
@@ -34,4 +34,9 @@
         - Hospital, specialization, education should in string format
         - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
         - Profile picture should be of type PNG, JPG, JPEG and size less than 1MB
-        
+5) View Profile (GET) (/user/profile)
+    - Header : Bearer Token
+    - Allowed Fields : No fields
+    - Conditions :
+        - Normal User authentic conditions
+    - Response : All the user data

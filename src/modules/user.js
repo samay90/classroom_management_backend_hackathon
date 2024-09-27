@@ -15,7 +15,7 @@ const verifyUser = ({user_id}) =>{
 }
 const checkDoctorFlag = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from doctors where user_id=?;`;
+        const q = `select count(*) as flag from doctors where user_id=? and is_verified=1;`;
         db.query(q,[user_id],(err,result)=>{
             if (err){
                 reject(err)
@@ -109,4 +109,28 @@ const getOldProfileImage = ({user_id}) =>{
         })
     })
 }
-module.exports = {verifyUser,updateDoctorInfo,getOldProfileImage,updateUserInfo,addProfileImage,checkDoctorFlag,addDoctorRequest}
+const getUserProfile = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select user_id,email,phone_no,is_doctor,is_deleted,is_verified,first_name,last_name,dob,created_at,updated_at,bio,city,state,country,true_bookings,false_bookings from users where user_id=?;`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getDoctorProfile = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select hospital,specialization,education,ratings,appointment_count,open_time,close_time,appointment_status from doctors where user_id=?;`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {verifyUser,getUserProfile,updateDoctorInfo,getDoctorProfile,getOldProfileImage,updateUserInfo,addProfileImage,checkDoctorFlag,addDoctorRequest}

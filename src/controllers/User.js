@@ -2,7 +2,7 @@ const express = require("express")
 const userRouter = express.Router()
 const lang = require("../../lang/lang.json")
 const checker = require("../helpers/functions/checker")
-const { checkDoctorFlag, addDoctorRequest, addProfileImage, updateUserInfo, updateDoctorInfo, getOldProfileImage } = require("../modules/user")
+const { checkDoctorFlag, addDoctorRequest, addProfileImage, updateUserInfo, updateDoctorInfo, getOldProfileImage, getUserProfile, getDoctorProfile } = require("../modules/user")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
@@ -336,5 +336,31 @@ userRouter.post("/profile/update",async (req,res)=>{
         }
     }
     
+})
+userRouter.get("/profile",async (req,res)=>{
+    const user = req.user
+    const getUserProfileResponse = await getUserProfile({user_id:user.user_id})
+    const getOldProfileImageResponse = await getOldProfileImage({user_id:user.user_id})
+    let getDoctorProfileResponse = null
+    if (user.is_doctor==1){
+         getDoctorProfileResponse= await getDoctorProfile({user_id:user.user_id})
+    }
+    if (getUserProfileResponse&&getOldProfileImageResponse){
+        res.send({
+            status:200,
+            error:false,
+            message:"",
+            data:{
+                ...getUserProfileResponse,...getOldProfileImageResponse,...getDoctorProfileResponse
+            }
+        })
+    }else{
+        res.status(501).send({
+            status:501,
+            error:true,
+            message:lang.SOMETHING_WENT_WRONG,
+            data:{}
+        })
+    }
 })
 module.exports = userRouter

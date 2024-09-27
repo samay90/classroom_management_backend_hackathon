@@ -25,3 +25,13 @@
         - Hospital, specialization, education should in string format
         - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
         - Doctor should have applied before
+4) Update Profile (/user/update)
+    - Header : Bearer Token
+    - Allowed Fields : first_name, last_name, dob, bio, profile, (education, specialization, hospital, open_time, close_time) <- For Doctors
+    - Required Fields : Atleast 1 field from Allowed Fields
+    - Conditons :
+        - Hightlighted fields are only taken if user is a doctor
+        - Hospital, specialization, education should in string format
+        - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
+        - Profile picture should be of type PNG, JPG, JPEG and size less than 1MB
+        

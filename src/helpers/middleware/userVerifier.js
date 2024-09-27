@@ -49,7 +49,7 @@ const userVerifier = async (req,res,next) =>{
                                 data:{}
                             })
                         }else{
-                            req.user = result
+                            req.user = {...result,is_doctor:verifyUserReponse[0].is_doctor}
                             next()
                         }
                     }

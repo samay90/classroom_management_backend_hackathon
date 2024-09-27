@@ -18,5 +18,10 @@
     "USER_UNVERIFIED":"Your account is being banned due to security reasons!!",
     "ALREADY_DOCTOR":"Your are already a doctor!!",
     "INVALID_TIME":"Invalid time. It should be in between 0 and 24 hrs!!",
-    "INVALID_CLOSE_TIME":"Invalid close_time. It should be greater then open_time!!"
+    "INVALID_CLOSE_TIME":"Invalid close_time. It should be greater then open_time!!",
+    "EMPTY_INPUTS":"No inputs entered!!",
+    "MULTIPLE_PROFILE_IMAGES":"Multiple profile images uploaded!!",
+    "INVALID_PROFILE_IMAGE_SIZE":"Size of profile image should be less than 1MB!!",
+    "INVALID_PROFILE_IMAGE_TYPE":"Type of profile image should PNG, JPG or JPEG!!",
+    "INVALID_DOB":"Invalid date of birth!!"
 }

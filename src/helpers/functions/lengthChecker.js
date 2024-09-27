@@ -1,7 +1,7 @@
 const lengthChecker = (data,lens) =>{
     let fields = []
     Object.keys(lens).map((i)=>{   
-        if (data[i]&&data[i].length>lens[i])fields.push(i)
+        if (data[i]&&lens[i]&&data[i].length>lens[i])fields.push(i)
     })
     var msg = []
     fields.map((i)=>{

@@ -224,7 +224,7 @@ userRouter.post("/profile/update",async (req,res)=>{
         return true
     }
     if (user.is_doctor==1){
-        if (!(body.first_name || body.last_name || body.dob || body.bio || body.education || body.specialization || body.hospital || body.open_time || body.close_time || (files && files.profile))){
+        if (!(body.first_name || body.last_name || body.dob || body.bio || body.education || body.specialization || body.hospital || body.open_time || body.city||body.state||body.country || body.close_time || (files && files.profile))){
             res.status(400).send({
                 status:400,
                 error:true,
@@ -281,7 +281,7 @@ userRouter.post("/profile/update",async (req,res)=>{
             }
         }
     }else{
-        if (!(body.first_name || body.last_name || body.dob || body.bio || (files && files.profile))){
+        if (!(body.first_name || body.last_name || body.dob || body.bio || body.city||body.state||body.country|| (files && files.profile))){
             res.status(400).send({
                 status:400,
                 error:true,

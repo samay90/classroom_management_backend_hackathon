@@ -27,7 +27,7 @@
         - Doctor should have applied before
 4) Update Profile (POST) (/user/profile/update)
     - Header : Bearer Token
-    - Allowed Fields : first_name, last_name, dob, bio, profile, (education, specialization, hospital, open_time, close_time) <- For Doctors
+    - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country, (education, specialization, hospital, open_time, close_time) <- For Doctors
     - Required Fields : Atleast 1 field from Allowed Fields
     - Conditons :
         - Hightlighted fields are only taken if user is a doctor

@@ -53,7 +53,7 @@ const addProfileImage = ({user_id,path,file_name}) =>{
         })
     })
 }
-const updateUserInfo = ({user_id,first_name,last_name,dob,bio}) =>{
+const updateUserInfo = ({user_id,first_name,last_name,dob,bio,city,state,country}) =>{
     return new Promise((resolve,reject)=>{
         const currentTime = getTimeString()
         let fields = [`updated_at='${currentTime}'`]
@@ -64,6 +64,9 @@ const updateUserInfo = ({user_id,first_name,last_name,dob,bio}) =>{
             fields.push(`dob="${new_dob.getTime()}"`)
         }
         if  (bio)fields.push(`bio="${bio}"`)
+        if  (city)fields.push(`city="${city}"`)
+        if  (state)fields.push(`state="${state}"`)
+        if  (country)fields.push(`country="${country}"`)
         const q = `update users set ${fields.join(",")} where user_id=?;`;
         db.query(q,[user_id],(err,result)=>{
             if (err){

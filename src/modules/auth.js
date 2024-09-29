@@ -16,8 +16,8 @@ const checkUniqueFlag = ({email,phone_no}) =>{
 const createUser = ({email,phone_no,password,first_name,last_name}) =>{
     return new Promise((resolve,reject)=>{
         const currentTime = getTimeString()
-        const q = `insert into users (email, phone_no, password, is_doctor, is_deleted, is_verified, first_name, last_name, dob, created_at, updated_at, bio) values (?);`;
-        db.query(q,[[email,phone_no,password,0,0,1,first_name,last_name,null,currentTime,currentTime,null]],(err,result)=>{
+        const q = `insert into users (email, phone_no, password, is_deleted, is_verified, first_name, last_name, dob, created_at, updated_at, bio) values (?);`;
+        db.query(q,[[email,phone_no,password,0,1,first_name,last_name,null,currentTime,currentTime,null]],(err,result)=>{
             if (err){
                 reject(err)
             }else{

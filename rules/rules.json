@@ -4,9 +4,6 @@
     "first_name":50,
     "last_name":50,
     "bio":200,
-    "hospital":200,
-    "specilazation":45,
-    "education":200,
     "city":50,
     "state":50,
     "country":50

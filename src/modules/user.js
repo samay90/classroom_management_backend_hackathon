@@ -3,33 +3,8 @@ const {getTimeString} = require("../helpers/functions/timeToWordDate")
 
 const verifyUser = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select is_deleted,is_verified,is_doctor from users where user_id=?;`;
+        const q = `select is_deleted,is_verified from users where user_id=?;`;
         db.query(q,[user_id],(err,result)=>{
-            if (err){
-                reject(err)
-            }else{
-                resolve(result)
-            }
-        })
-    })
-}
-const checkDoctorFlag = ({user_id}) =>{
-    return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from doctors where user_id=? and is_verified=1;`;
-        db.query(q,[user_id],(err,result)=>{
-            if (err){
-                reject(err)
-            }else{
-                resolve(result[0])
-            }
-        })
-    })
-}
-const addDoctorRequest = ({user_id,hospital,specialization,education,open_time,close_time}) =>{
-    return new Promise((resolve,reject)=>{
-        const currentTime = getTimeString()
-        const q = `insert into doctors (user_id,hospital,specialization,is_verified,education,created_at,updated_at,ratings,appointment_count,open_time,close_time,appointment_status) values (?);`;
-        db.query(q,[[user_id,hospital,specialization,0,education,currentTime,currentTime,0,0,open_time,close_time,0]],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -77,25 +52,6 @@ const updateUserInfo = ({user_id,first_name,last_name,dob,bio,city,state,country
         })
     })
 }
-const updateDoctorInfo = ({user_id,hospital,specialization,education,open_time,close_time}) =>{
-    return new Promise((resolve,reject)=>{
-        const currentTime = getTimeString()
-        let fields = [`updated_at='${currentTime}'`]
-        if  (hospital)fields.push(`hospital="${hospital}"`)
-        if  (specialization)fields.push(`specialization="${specialization}"`)
-        if  (education)fields.push(`education="${education}"`)
-        if  (open_time)fields.push(`open_time="${open_time}"`)
-        if  (close_time)fields.push(`close_time="${close_time}"`)
-        const q = `update doctors set ${fields.join(",")} where user_id=?;`;
-        db.query(q,[user_id],(err,result)=>{
-            if (err){
-                reject(err)
-            }else{
-                resolve(result)
-            }
-        })
-    })
-}
 const getOldProfileImage = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
         const q = `select file_name,path from documents where user_id=? and is_deleted=0 and doc_type='profile';`;
@@ -114,19 +70,7 @@ const getOldProfileImage = ({user_id}) =>{
 }
 const getUserProfile = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select user_id,email,phone_no,is_doctor,is_deleted,is_verified,first_name,last_name,dob,created_at,updated_at,bio,city,state,country,true_bookings,false_bookings from users where user_id=?;`;
-        db.query(q,[user_id],(err,result)=>{
-            if (err){
-                reject(err)
-            }else{
-                resolve(result[0])
-            }
-        })
-    })
-}
-const getDoctorProfile = ({user_id}) =>{
-    return new Promise((resolve,reject)=>{
-        const q = `select hospital,specialization,education,ratings,appointment_count,open_time,close_time,appointment_status from doctors where user_id=?;`;
+        const q = `select user_id,email,phone_no,is_deleted,is_verified,first_name,last_name,dob,created_at,updated_at,bio,city,state,country from users where user_id=?;`;
         db.query(q,[user_id],(err,result)=>{
             if (err){
                 reject(err)
@@ -138,7 +82,23 @@ const getDoctorProfile = ({user_id}) =>{
 }
 const checkUserDetails = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select dob,bio,city,state,`
+        const q = `select dob,city,state,country where user_id=?;`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                const {dob,city,state,country} = result[0]
+                if (dob && city && state && country){
+                    resolve({
+                        valid:true
+                    })
+                }else{
+                    resolve({
+                        valid:false
+                    })
+                }
+            }
+        })
     })
 }
-module.exports = {verifyUser,getUserProfile,updateDoctorInfo,getDoctorProfile,getOldProfileImage,updateUserInfo,addProfileImage,checkDoctorFlag,addDoctorRequest}
+module.exports = {verifyUser,getUserProfile,checkUserDetails,getOldProfileImage,updateUserInfo,addProfileImage}

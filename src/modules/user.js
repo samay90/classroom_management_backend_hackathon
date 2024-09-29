@@ -136,4 +136,9 @@ const getDoctorProfile = ({user_id}) =>{
         })
     })
 }
+const checkUserDetails = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select dob,bio,city,state,`
+    })
+}
 module.exports = {verifyUser,getUserProfile,updateDoctorInfo,getDoctorProfile,getOldProfileImage,updateUserInfo,addProfileImage,checkDoctorFlag,addDoctorRequest}

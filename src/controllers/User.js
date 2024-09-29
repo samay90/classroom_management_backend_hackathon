@@ -249,7 +249,7 @@ userRouter.post("/profile/update",async (req,res)=>{
                                 console.log(saveProfileImageResponse);
                                 
                                 if (saveProfileImageResponse){
-                                    const updateUserInfoResponse = await updateUserInfo({user_id:user.user_id,first_name:body.first_name,last_name:body.last_name,dob:body.dob,bio:body.bio}) 
+                                    const updateUserInfoResponse = await updateUserInfo({user_id:user.user_id,first_name:body.first_name,last_name:body.last_name,dob:body.dob,bio:body.bio,city:body.city,state:body.state,country:body.country}) 
                                     const updateDoctorInfoResponse = await updateDoctorInfo({user_id:user.user_id,hospital:body.hospital,specialization:body.specialization,education:body.education,open_time:body.open_time,close_time:body.close_time}) 
                                     if (updateDoctorInfoResponse && updateUserInfoResponse){
                                         res.send({
@@ -304,7 +304,7 @@ userRouter.post("/profile/update",async (req,res)=>{
                             if (startAndCloseTime()){
                                 const saveProfileImageResponse = await saveProfileImage()
                                 if (saveProfileImageResponse){
-                                    const updateUserInfoResponse = await updateUserInfo({user_id:user.user_id,first_name:body.first_name,last_name:body.last_name,dob:body.dob,bio:body.bio}) 
+                                    const updateUserInfoResponse = await updateUserInfo({user_id:user.user_id,first_name:body.first_name,last_name:body.last_name,dob:body.dob,bio:body.bio,city:body.city,state:body.state,country:body.country}) 
                                     if (updateUserInfoResponse){
                                         res.send({
                                             status:200,
@@ -362,5 +362,9 @@ userRouter.get("/profile",async (req,res)=>{
             data:{}
         })
     }
+})
+userRouter.get("/appointment/new",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
 })
 module.exports = userRouter

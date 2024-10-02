@@ -26,5 +26,7 @@
     "INVALID_DOB":"Invalid date of birth!!",
     "NO_CLASSROOM_EXIST":"Invalid join_code. No such classroom exist!!",
     "INVALID_JOIN_PASSWORD":"Invalid join_password!!",
-    "ALREADY_IN_CLASSROOM":"You are already in classroom!!"
+    "ALREADY_IN_CLASSROOM":"You are already in classroom!!",
+    "INVALID_CLASSROOM":"Invalid classroom. No such classroom exist!!",
+    "INVALID_ROLE_ELIGIBLE":"Your are not eligible to perform this task with your current role!!"
 }

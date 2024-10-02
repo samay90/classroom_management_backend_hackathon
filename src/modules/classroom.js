@@ -42,4 +42,30 @@ const updateClassroom = ({class_id,class_name,class_description,join_password})=
         })
     })
 }
-module.exports = {userClassroomStatus,getUserRole,updateClassroom}
+const removeUser = ({class_id,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update connections set is_deleted=1,updated_at=? where user_id=? and class_id=?;`;
+        db.query(q,[currentTime,user_id,class_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const updateRole = ({class_id,user_id,role}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update connections set role=?,updated_at=? where user_id=? and class_id=?;`;
+        db.query(q,[role,currentTime,user_id,class_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+} 
+module.exports = {userClassroomStatus,removeUser,updateRole,getUserRole,updateClassroom}

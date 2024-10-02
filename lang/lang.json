@@ -16,7 +16,6 @@
     "NO_SUCH_EXIST":"No such user exist!!",
     "USER_DELETED":"Your account is being deleted!!",
     "USER_UNVERIFIED":"Your account is being banned due to security reasons!!",
-    "ALREADY_DOCTOR":"Your are already a doctor!!",
     "INVALID_TIME":"Invalid time. It should be in between 0 and 24 hrs!!",
     "INVALID_CLOSE_TIME":"Invalid close_time. It should be greater then open_time!!",
     "EMPTY_INPUTS":"No inputs entered!!",
@@ -28,5 +27,7 @@
     "INVALID_JOIN_PASSWORD":"Invalid join_password!!",
     "ALREADY_IN_CLASSROOM":"You are already in classroom!!",
     "INVALID_CLASSROOM":"Invalid classroom. No such classroom exist!!",
-    "INVALID_ROLE_ELIGIBLE":"Your are not eligible to perform this task with your current role!!"
+    "INVALID_ROLE_ELIGIBLE":"Your are not eligible to perform this task with your current role!!",
+    "CANNOT_TAKE_ACTION_YOURSELF":"Cannot take action on yourself!!",
+    "USER_NOT_IN_CLASSROOM":"User not in your classroom!!"
 }

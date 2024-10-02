@@ -65,3 +65,13 @@
         - class_id must be integral and class should exist
         - All the fields should be of type string
     - Response : Basic
+8) Manage Classroom (PSOT) (/classroom/:class_id/manage)
+    - Allowed Fields : user_id, action_type, action (T OR S)
+    - Required Fields : user_id,action_type (R or M)
+    - Header : Bearer Token
+    - Conditions :
+        - Both the users must be there in class
+        - Main user must be the creator of the class
+        - Cannot modify himself
+        - If action_type is M then action should provided
+    - Response : Basic

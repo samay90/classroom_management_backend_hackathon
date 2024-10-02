@@ -55,3 +55,13 @@
         - join_password should be valid
         - user should not have any role in that classroom
      - Response : Basic
+7) Update Classroom (POST) (/classroom/:class_id/edit)
+    - Header : Bearer Token
+    - Allowed Fields : class_name, class_desceription, join_password
+    - Required Fields : Any one of Allowed Fields
+    - Params : class_id
+    - Conditions :
+        - User should be creator of the class
+        - class_id must be integral and class should exist
+        - All the fields should be of type string
+    - Response : Basic

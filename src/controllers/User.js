@@ -2,7 +2,7 @@ const express = require("express")
 const userRouter = express.Router()
 const lang = require("../../lang/lang.json")
 const checker = require("../helpers/functions/checker")
-const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag } = require("../modules/user")
+const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag, getClassJoinPassword, joinClass, userClassroomStatus } = require("../modules/user")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
@@ -238,6 +238,7 @@ userRouter.post("/class/new",async (req,res)=>{
 })
 userRouter.post("/class/join",async (req,res)=>{
     const body = req.body;
+    const user = req.user;
     const checkerResponse = checker(body,["join_code","join_password"])
     if (checkerResponse.error){
         res.status(400).send({
@@ -264,7 +265,52 @@ userRouter.post("/class/join",async (req,res)=>{
                     data:{}
                 })
             }else{
-
+                const getClassJoinPasswordResponse = await getClassJoinPassword({join_code:body.join_code})
+                if (getClassJoinPasswordResponse){
+                    const userClassroomStatusResponse = await userClassroomStatus({class_id:getClassJoinPasswordResponse.class_id,user_id:user.user_id})
+                    if (userClassroomStatusResponse.flag==0){
+                        const passFlag = bcrypt.compareSync(body.join_password,getClassJoinPasswordResponse.join_password)
+                        if (!passFlag){
+                            res.status(401).send({
+                                status:401,
+                                error:true,
+                                message:lang.INVALID_JOIN_PASSWORD,
+                                data:{}
+                            })
+                        }else{
+                            const joinClassResponse = await joinClass({user_id:user.user_id,class_id:getClassJoinPasswordResponse.class_id,role:"student"})
+                            if (joinClassResponse){
+                                res.send({
+                                    status:200,
+                                    error:false,
+                                    message:"Join Classroom!!",
+                                    data:{}
+                                })
+                            }else{
+                                res.status(501).send({
+                                    status:501,
+                                    error:true,
+                                    message:lang.SOMETHING_WENT_WRONG,
+                                    data:{}
+                                })
+                            }
+                        }
+                    }else{
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.ALREADY_IN_CLASSROOM,
+                            data:{}
+                        })
+                    }
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
             }
         }
     }

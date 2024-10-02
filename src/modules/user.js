@@ -143,9 +143,21 @@ const createClassroom = ({class_name,class_description,join_password,user_id,joi
         })
     })
 }
-const getClassCode = ({join_code}) =>{
+const userClassroomStatus = ({user_id,class_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select join_password from classrooms where join_code=?;`;
+        const q = `select count(*) as flag from connections where user_id=? and class_id=? and is_deleted=0;`;
+        db.query(q,[user_id,class_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getClassJoinPassword = ({join_code}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select join_password,class_id from classrooms where join_code=?;`;
         db.query(q,[join_code],(err,result)=>{
             if (err){
                 reject(err)
@@ -155,4 +167,4 @@ const getClassCode = ({join_code}) =>{
         })
     })
 }
-module.exports = {verifyUser,getUserProfile,getClassCode,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}
+module.exports = {verifyUser,getUserProfile,getClassJoinPassword,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}

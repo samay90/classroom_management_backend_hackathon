@@ -25,5 +25,6 @@
     "INVALID_PROFILE_IMAGE_TYPE":"Type of profile image should PNG, JPG or JPEG!!",
     "INVALID_DOB":"Invalid date of birth!!",
     "NO_CLASSROOM_EXIST":"Invalid join_code. No such classroom exist!!",
-    "INVALID_JOIN_PASSWORD":"Invalid join_password!!"
+    "INVALID_JOIN_PASSWORD":"Invalid join_password!!",
+    "ALREADY_IN_CLASSROOM":"You are already in classroom!!"
 }

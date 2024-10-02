@@ -38,3 +38,19 @@
     - Conditions :
         - Normal User authentic conditions
     - Response : All the user data
+5) Create Classroom (POST) (/user/class/new)
+    - Header : Bearer Token
+    - Allowed Fields : class_name, class_description, join_password
+    - Required Fields : All allowed fields
+    - Conditions :
+        - Basic conditions
+    - Response : join_code and join_password
+6) Join Classroom (POST) (/user/class/join)
+    - Header : Bearer Token
+    - Allowed Fields : join_code, join_password
+    - Required Fields : All allowed Fields
+    - Conditions :
+        - join_code should be valid
+        - join_password should be valid
+        - user should not have any role in that classroom
+     - Response : Basic

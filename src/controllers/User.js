@@ -2,11 +2,13 @@ const express = require("express")
 const userRouter = express.Router()
 const lang = require("../../lang/lang.json")
 const checker = require("../helpers/functions/checker")
-const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile } = require("../modules/user")
+const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag } = require("../modules/user")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
 const fs = require("fs")
+const bcrypt = require("bcrypt")
+const joinCodeGenerator = require("../helpers/functions/codeGenerator")
 
 userRouter.post("/profile/update",async (req,res)=>{
     const body = req.body;
@@ -175,5 +177,96 @@ userRouter.get("/profile",async (req,res)=>{
         })
     }
 })
+userRouter.post("/class/new",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    const checkerResponse = checker(body,["class_name","class_description","join_password"])
+    if (!checkerResponse.error){
+        if (typeof(body.class_name)=="string" && typeof(body.class_description)=="string" && typeof(body.join_password)=="string"){
+            const lengthCheckerResponse = lengthChecker(body,rules)
+            if (lengthCheckerResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lengthCheckerResponse.message,
+                    data:{}
+                })
+            }else{
+                const hassJoinPassword = bcrypt.hashSync(body.join_password,2)
+                let joinCode = joinCodeGenerator()
+                while (true){
+                    const checkJoinCodeFlagResponse = await checkJoinCodeFlag({join_code:joinCode})
+                    if (checkJoinCodeFlagResponse.flag==0){break}
+                    joinCode = joinCodeGenerator()
+                }
+                const createClassroomResponse = await createClassroom({class_name:body.class_name,class_description:body.class_description,join_password:hassJoinPassword,user_id:user.user_id,join_code:joinCode})
+                if (createClassroomResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Classroom Created!!",
+                        data:{
+                            join_code:joinCode,
+                            join_password:body.join_password
+                        }
+                    })
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
+            }
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.STRING_VALUES,
+                data:{}
+            })
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+            data:{}
+        })
+    }
+})
+userRouter.post("/class/join",async (req,res)=>{
+    const body = req.body;
+    const checkerResponse = checker(body,["join_code","join_password"])
+    if (checkerResponse.error){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+            data:{}
+        })
+    }else{
+        if (!(typeof(body.join_code)=="string" && typeof(body.join_password)=="string")){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.STRING_VALUES,
+                data:{}
+            })
+        }else{
+            const checkJoinCodeFlagResponse = await checkJoinCodeFlag({join_code:body.join_code})
+            if (checkJoinCodeFlagResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.NO_CLASSROOM_EXIST,
+                    data:{}
+                })
+            }else{
 
+            }
+        }
+    }
+})
 module.exports = userRouter

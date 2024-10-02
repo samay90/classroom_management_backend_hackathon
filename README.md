@@ -1,4 +1,4 @@
-<h1>Appointment Booking Backend</h1>
+<h1>Classroom Management Backend</h1>
 <h2>Release Notes</h2>
 
 1) SignUp (POST) (/auth/signup)
@@ -17,7 +17,6 @@
         - authenticator should be either of email and phone_no
         - Password should be valid
     - Response : token
-3) Apply for Doctor (POST) (/user/apply/doctor)
     - Header : Bearer Token
     - Allowed Fields : hospital,specialization,education,open_time,close_time,
     - Required Fields : All allowed fields
@@ -25,16 +24,15 @@
         - Hospital, specialization, education should in string format
         - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
         - Doctor should have applied before
-4) Update Profile (POST) (/user/profile/update)
+3) Update Profile (POST) (/user/profile/update)
     - Header : Bearer Token
-    - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country, (education, specialization, hospital, open_time, close_time) <- For Doctors
+    - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country
     - Required Fields : Atleast 1 field from Allowed Fields
     - Conditons :
-        - Hightlighted fields are only taken if user is a doctor
-        - Hospital, specialization, education should in string format
-        - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
+        - first_name, last_name, bio, city,state,country should be string format
+        - dob should be a valid date of any format
         - Profile picture should be of type PNG, JPG, JPEG and size less than 1MB
-5) View Profile (GET) (/user/profile)
+4) View Profile (GET) (/user/profile)
     - Header : Bearer Token
     - Allowed Fields : No fields
     - Conditions :

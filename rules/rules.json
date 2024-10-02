@@ -6,5 +6,7 @@
     "bio":200,
     "city":50,
     "state":50,
-    "country":50
+    "country":50,
+    "class_name":50,
+    "class_description":200
 }

@@ -23,5 +23,7 @@
     "MULTIPLE_PROFILE_IMAGES":"Multiple profile images uploaded!!",
     "INVALID_PROFILE_IMAGE_SIZE":"Size of profile image should be less than 1MB!!",
     "INVALID_PROFILE_IMAGE_TYPE":"Type of profile image should PNG, JPG or JPEG!!",
-    "INVALID_DOB":"Invalid date of birth!!"
+    "INVALID_DOB":"Invalid date of birth!!",
+    "NO_CLASSROOM_EXIST":"Invalid join_code. No such classroom exist!!",
+    "INVALID_JOIN_PASSWORD":"Invalid join_password!!"
 }

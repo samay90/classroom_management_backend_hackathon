@@ -101,4 +101,58 @@ const checkUserDetails = ({user_id}) =>{
         })
     })
 }
-module.exports = {verifyUser,getUserProfile,checkUserDetails,getOldProfileImage,updateUserInfo,addProfileImage}
+const joinClass = ({user_id,class_id,role,currentTime = getTimeString()}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `insert into connections (user_id,class_id,role,is_deleted,created_at,updated_at) values (?);`;
+        db.query(q,[[user_id,class_id,role,0,currentTime,currentTime]],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const checkJoinCodeFlag = ({join_code}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from classrooms where join_code=?;`;
+        db.query(q,[join_code],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const createClassroom = ({class_name,class_description,join_password,user_id,join_code}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into classrooms (class_name,class_description,join_password,created_at,updated_at,is_deleted,join_code) values (?);`;
+        db.query(q,[[class_name,class_description,join_password,currentTime,currentTime,0,join_code]],async (err,result)=>{
+            if (err){
+                reject((err))
+            }else{
+                const joinClassResponse = await joinClass({user_id,class_id:result.insertId,role:"creator",currentTime})
+                if (joinClassResponse){
+                    resolve(result)
+                }else{
+                    reject(joinClassResponse)
+                }
+            }
+        })
+    })
+}
+const getClassCode = ({join_code}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select join_password from classrooms where join_code=?;`;
+        db.query(q,[join_code],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {verifyUser,getUserProfile,getClassCode,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}

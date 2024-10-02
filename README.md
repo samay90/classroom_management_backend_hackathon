@@ -43,13 +43,14 @@
     - Allowed Fields : class_name, class_description, join_password
     - Required Fields : All allowed fields
     - Conditions :
-        - Basic conditions
+        - All the fields should be of type string
     - Response : join_code and join_password
 6) Join Classroom (POST) (/user/class/join)
     - Header : Bearer Token
     - Allowed Fields : join_code, join_password
     - Required Fields : All allowed Fields
     - Conditions :
+        - All fields should be of type string
         - join_code should be valid
         - join_password should be valid
         - user should not have any role in that classroom

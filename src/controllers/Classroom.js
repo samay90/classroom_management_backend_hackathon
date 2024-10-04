@@ -220,4 +220,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
         }
     }
 })
+classRouter.post("/:class_id/resource/new",async (req,res)=>{
+    // const body
+})
 module.exports = classRouter

@@ -65,7 +65,7 @@
         - class_id must be integral and class should exist
         - All the fields should be of type string
     - Response : Basic
-8) Manage Classroom (PSOT) (/classroom/:class_id/manage)
+8) Manage Classroom (POST) (/classroom/:class_id/manage)
     - Allowed Fields : user_id, action_type, action (T OR S)
     - Required Fields : user_id,action_type (R or M)
     - Header : Bearer Token
@@ -74,4 +74,13 @@
         - Main user must be the creator of the class
         - Cannot modify himself
         - If action_type is M then action should provided
+    - Response : Basic
+9) Add Resource (POST) (/classroom/:class_id/resource/new)
+    - Allowed Fields : title, body, attachements
+    - Required Fields : title
+    - Header :  Bearer Token
+    - Conditons : 
+        - User must be a part and creator or teacher of the classroom.
+        - title should be less 50chars and body must be less than 200chars.
+        - attachments is files
     - Response : Basic

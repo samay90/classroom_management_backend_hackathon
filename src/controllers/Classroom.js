@@ -235,61 +235,75 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                 data:{}
             })
         }else{
-            const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
-            if (userClassroomStatusResponse.flag==0){
-                res.status(400).send({
-                    status:400,
-                    error:true,
-                    message:lang.INVALID_CLASSROOM,
-                    data:{}
-                })
+            if (!((typeof(body.title)=="string" && (!body.body || typeof(body.body)=="string")))){
+                
             }else{
-                const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
-                if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                const lengthCheckerResponse = lengthChecker(body,rules)
+                if (lengthCheckerResponse.error){
                     res.status(400).send({
                         status:400,
                         error:true,
-                        message:lang.INVALID_ROLE_ELIGIBLE,
+                        message:lengthCheckerResponse.message,
                         data:{}
                     })
                 }else{
-                    const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body})
-                    let resourceFlag = false
-                    if (addResourceResponse){
-                        if (files && files.attachements){
-                            if (!Array.isArray(files.attachements)){
-                                files.attachements = [files.attachements]
-                            }   
-                            const len = files.attachements.length
-                            for (let i=0;i<len;i++){	
-                                const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
-                                files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
-                                await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
-                                if (i+1==len){
-                                    resourceFlag=true
-                                }
-                            }
-                        }else{
-                            resourceFlag = true
-                        }
-                        if (resourceFlag){
-                            res.send({
-                                status:200,
-                                error:false,
-                                message:"Resource added!!",
-                                data:{}
-                            })
-                        }
-                    }else{
-                        res.status(501).send({
-                            status:501,
+                    const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                    if (userClassroomStatusResponse.flag==0){
+                        res.status(400).send({
+                            status:400,
                             error:true,
-                            message:lang.SOMETHING_WENT_WRONG,
+                            message:lang.INVALID_CLASSROOM,
                             data:{}
                         })
-                    }
-                }
-            }   
+                    }else{
+                        const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                        if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_ROLE_ELIGIBLE,
+                                data:{}
+                            })
+                        }else{
+                            const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body})
+                            let resourceFlag = false
+                            if (addResourceResponse){
+                                if (files && files.attachements){
+                                    if (!Array.isArray(files.attachements)){
+                                        files.attachements = [files.attachements]
+                                    }   
+                                    const len = files.attachements.length
+                                    for (let i=0;i<len;i++){	
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
+                                        files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
+                                        await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                        if (i+1==len){
+                                            resourceFlag=true
+                                        }
+                                    }
+                                }else{
+                                    resourceFlag = true
+                                }
+                                if (resourceFlag){
+                                    res.send({
+                                        status:200,
+                                        error:false,
+                                        message:"Resource added!!",
+                                        data:{}
+                                    })
+                                }
+                            }else{
+                                res.status(501).send({
+                                    status:501,
+                                    error:true,
+                                    message:lang.SOMETHING_WENT_WRONG,
+                                    data:{}
+                                })
+                            }
+                        }
+                    }   
+                }   
+            }
         }
     }else{
         res.status(400).send({

@@ -8,5 +8,7 @@
     "state":50,
     "country":50,
     "class_name":50,
-    "class_description":200
+    "class_description":200,
+    "title":50,
+    "body":200
 }

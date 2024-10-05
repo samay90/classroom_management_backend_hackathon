@@ -1,5 +1,5 @@
 <h1>Classroom Management Backend</h1>
-<h3 color="red">#OnMission #MakingRevolutionaryThing #CurrentProject1</h3>
+<h3 style="color:blue">#OnMission #MakingRevolutionaryThing #CurrentProject1</h3>
 <h2>Release Notes</h2>
 
 1) SignUp (POST) (/auth/signup)

@@ -68,4 +68,29 @@ const updateRole = ({class_id,user_id,role}) =>{
         })
     })
 } 
-module.exports = {userClassroomStatus,removeUser,updateRole,getUserRole,updateClassroom}
+const addResource = ({class_id,user_id,title,body}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into resources (class_id,user_id,title,body,is_deleted,created_at,updated_at) values (?);`;
+        db.query(q,[[class_id,user_id,title,body,0,currentTime,currentTime]],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const addClassDocument = ({class_id,ra_id,cd_id,cd_type,user_id,file_name,path}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `insert into class_documents (class_id,ra_id,cd_id,cd_type,user_id,file_name,path) values (?);`;
+        db.query(q,[[class_id,ra_id,cd_id,cd_type,user_id,file_name,path]],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument}

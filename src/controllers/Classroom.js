@@ -1,11 +1,12 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
 const checker = require("../helpers/functions/checker")
+const { getTimeString } = require("../helpers/functions/timeToWordDate")
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -221,6 +222,82 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
     }
 })
 classRouter.post("/:class_id/resource/new",async (req,res)=>{
-    // const body
+    const body = req.body;
+    const user = req.user;
+    let files = req.files;
+    const {class_id} = req.params;
+    if (parseInt(class_id)){
+        if (!body.title){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.TITLE_REQUIRED,
+                data:{}
+            })
+        }else{
+            const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+            if (userClassroomStatusResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_CLASSROOM,
+                    data:{}
+                })
+            }else{
+                const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_ROLE_ELIGIBLE,
+                        data:{}
+                    })
+                }else{
+                    const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body})
+                    let resourceFlag = false
+                    if (addResourceResponse){
+                        if (files && files.attachements){
+                            if (!Array.isArray(files.attachements)){
+                                files.attachements = [files.attachements]
+                            }   
+                            const len = files.attachements.length
+                            for (let i=0;i<len;i++){	
+                                const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
+                                files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
+                                await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                if (i+1==len){
+                                    resourceFlag=true
+                                }
+                            }
+                        }else{
+                            resourceFlag = true
+                        }
+                        if (resourceFlag){
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Resource added!!",
+                                data:{}
+                            })
+                        }
+                    }else{
+                        res.status(501).send({
+                            status:501,
+                            error:true,
+                            message:lang.SOMETHING_WENT_WRONG,
+                            data:{}
+                        })
+                    }
+                }
+            }   
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INTEGRAL_CLASS_ID,
+            data:{}
+        })
+    }
 })
-module.exports = classRouter
+module.exports = classRouter    

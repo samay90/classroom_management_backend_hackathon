@@ -29,5 +29,7 @@
     "INVALID_CLASSROOM":"Invalid classroom. No such classroom exist!!",
     "INVALID_ROLE_ELIGIBLE":"Your are not eligible to perform this task with your current role!!",
     "CANNOT_TAKE_ACTION_YOURSELF":"Cannot take action on yourself!!",
-    "USER_NOT_IN_CLASSROOM":"User not in your classroom!!"
+    "USER_NOT_IN_CLASSROOM":"User not in your classroom!!",
+    "INTEGRAL_CLASS_ID":"Class is should be integral!!",
+    "TITLE_REQUIRED":"title is required!!"
 }

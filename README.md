@@ -18,12 +18,6 @@
         - Password should be valid
     - Response : token
     - Header : Bearer Token
-    - Allowed Fields : hospital,specialization,education,open_time,close_time,
-    - Required Fields : All allowed fields
-    - Conditions :
-        - Hospital, specialization, education should in string format
-        - open_time and close_time should be in integer format and 0 < open_time < close_time < 24
-        - Doctor should have applied before
 3) Update Profile (POST) (/user/profile/update)
     - Header : Bearer Token
     - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country

@@ -127,4 +127,30 @@ const getResource = ({resource_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag}
+const deleteResource = ({resource_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update resources set is_deleted=1 where resource_id=?;`;
+        db.query(q,[resource_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                const q2 = `select file_name from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+                db.query(q2,[`r${resource_id}`],(err2,result2)=>{
+                    if (err2){
+                        reject(err2)
+                    }else{
+                        const q3 = `update class_documents set is_deleted=1 where ra_id=? and cd_type="resource";`;
+                        db.query(q3,[`r${resource_id}`],(err3,result3)=>{
+                            if (err3){
+                                reject(err3)
+                            }else{
+                                resolve(result2)
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

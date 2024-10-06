@@ -93,4 +93,38 @@ const addClassDocument = ({class_id,ra_id,cd_id,cd_type,user_id,file_name,path})
         })
     })
 }
-module.exports = {userClassroomStatus,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument}
+const checkResourceFlag = ({class_id,resource_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from resources where class_id=? and resource_id=? and is_deleted=0;`;
+        db.query(q,[class_id,resource_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getResource = ({resource_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select * from resources where resource_id=? and is_deleted=0;`;
+        db.query(q,[resource_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                const q2 = `select cd_id,path,file_name from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+                db.query(q2,[`r${resource_id}`],(err2,result2)=>{
+                    if (err2){
+                        reject(err2)
+                    }else{
+                        resolve({
+                            ...result[0],
+                            attachements:result2
+                        })
+                    }
+                })
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag}

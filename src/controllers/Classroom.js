@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -225,8 +225,9 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
     const body = req.body;
     const user = req.user;
     let files = req.files;
-    const {class_id} = req.params;
+    let {class_id} = req.params;
     if (parseInt(class_id)){
+        class_id = parseInt(class_id)
         if (!body.title){
             res.status(400).send({
                 status:400,
@@ -312,6 +313,66 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
             message:lang.INTEGRAL_CLASS_ID,
             data:{}
         })
+    }
+})
+classRouter.get("/:class_id/resource/:resource_id",async (req,res)=>{
+    let {class_id,resource_id} = req.params
+    const user = req.user
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(resource_id)){  
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_RESOURCE_ID,
+                data:{}
+            })
+        }else{
+            class_id = parseInt(class_id)
+            resource_id = parseInt(resource_id)
+            const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+            if (userClassroomStatusResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_CLASSROOM,
+                    data:{}
+                })
+            }else{
+                const checkResourceFlagResponse = await checkResourceFlag({class_id,resource_id})                
+                if (checkResourceFlagResponse.flag==0){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_RESOURCE_ID,
+                        data:{}
+                    })
+                }else{
+                    const getResourceResponse = await getResource({resource_id})
+                    if (getResourceResponse){
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"",
+                            data:getResourceResponse
+                        })
+                    }else{
+                        res.status(501).send({
+                            status:501,
+                            error:true,
+                            message:lang.SOMETHING_WENT_WRONG,
+                            data:{}
+                        })
+                    }
+                }
+            }
+        }
     }
 })
 module.exports = classRouter    

@@ -73,9 +73,18 @@
 9) Add Resource (POST) (/classroom/:class_id/resource/new)
     - Allowed Fields : title, body, attachements
     - Required Fields : title
+    - Params : class_id
     - Header :  Bearer Token
     - Conditons : 
         - User must be a part and creator or teacher of the classroom.
         - title should be less 50chars and body must be less than 200chars.
         - attachments is files
     - Response : Basic
+10) View Resource (GET) (/classroom/:class_id/resource/:resource_id)
+    - Params : class_id, resource_id
+    - Header : Bearer Token
+    - Conditions :
+        - User must be the part of the classroom.
+        - Resource should belong for particular classroom.
+        - Resource should not be deleted
+    - Response : All the details of resource and attachemtns.

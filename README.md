@@ -95,4 +95,16 @@
         - User must be the creator or teacher of the classroom.
         - Resource should belong for particular classroom.
         - Resource should not be deleted
-    - Response : Basic.
+    - Response : Basic
+12) Edit Resource (POST) (/classroom/:class_id/resource/:resource_id/edit)
+    - Params : class_id, resource_id
+    - Header : Bearer Token
+    - Allowed Fields : body, title, delete_attachments, attachments
+    - Required Fields : Any one of Allowed Fields
+    - Conditions :
+        - Resource should belong form same classroom
+        - User should have creator or teacher role in the classroom
+        - body should be less than 200chars and title less then 50chars
+        - delete_attachments should be array of attachment ids in stringified format
+        - attachments should be files
+    - Response : Basic

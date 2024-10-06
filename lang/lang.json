@@ -32,5 +32,7 @@
     "USER_NOT_IN_CLASSROOM":"User not in your classroom!!",
     "INTEGRAL_CLASS_ID":"Class is should be integral!!",
     "TITLE_REQUIRED":"title is required!!",
-    "INVALID_RESOURCE_ID":"No such resource exist!!"
+    "INVALID_RESOURCE_ID":"No such resource exist!!",
+    "INVALID_DELETE_ATTACHMENTS_TYPE":"delete_attachments should be an array in the format of string!!",
+    "INVALID_DELETE_ATTACHMENTS":"Invalid delete_attachments no such attachment exist!!"
 }

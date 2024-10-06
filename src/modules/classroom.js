@@ -1,5 +1,6 @@
 const db = require("../helpers/database/db");
 const { getTimeString } = require("../helpers/functions/timeToWordDate"); 
+const fs = require('fs');
 
 const userClassroomStatus = ({user_id,class_id}) =>{
     return new Promise((resolve,reject)=>{
@@ -153,4 +154,47 @@ const deleteResource = ({resource_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const getResourceAttachments = ({resource_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select cd_id,file_name from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+        db.query(q,[`r${resource_id}`],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const deleteResourceAttachement = ({cd_id,file_name,class_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update class_documents set is_deleted=1 where cd_id=?;`;
+        db.query(q,[cd_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                fs.unlinkSync(`./public/classrooms/${class_id}/resources/${file_name}`,(err)=>{console.log(err)})
+                resolve(result)
+            }
+        })
+    })
+}
+const updateResource = ({resource_id,title,body}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        let fields = []
+        if (title)fields.push(`title="${title}"`)
+        if (body)fields.push(`body="${body}"`)
+        fields.push(`updated_at="${currentTime}"`)
+        const q = `update resources set ${fields.join(",")} where resource_id=?;`;
+        db.query(q,[resource_id],(err,result)=>{
+                if (err){
+                    reject(err)
+                }else{
+                    resolve(result)
+                }
+            })
+        })
+}
+module.exports = {userClassroomStatus,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

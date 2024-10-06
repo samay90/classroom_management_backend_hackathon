@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -461,5 +461,145 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
             }
         }
     }
-})	
+})
+classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
+    const body = req.body
+    const user = req.user
+    let files = req.files;
+    let {class_id,resource_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(resource_id)){  
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_RESOURCE_ID,
+                data:{}
+            })
+        }else{
+            class_id = parseInt(class_id)
+            resource_id = parseInt(resource_id)
+            const lengthCheckerResponse = await lengthChecker(body,rules)
+            if (lengthCheckerResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lengthCheckerResponse.message,
+                    data:{}
+                })
+            }else{
+                if ((body.delete_attachments && !JSON.parse(body.delete_attachments))){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_DELETE_ATTACHMENTS_TYPE,
+                        data:{}
+                    })
+                }else{
+                    const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                    if (userClassroomStatusResponse.flag==0){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_CLASSROOM,
+                            data:{}
+                        })
+                    }else{
+                        const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                        if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_ROLE_ELIGIBLE,
+                                data:{}
+                            })
+                        }else{
+                            const checkResourceFlagResponse = await checkResourceFlag({class_id,resource_id})
+                            if (checkResourceFlagResponse.flag==0){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_RESOURCE_ID,
+                                    data:{}
+                                })
+                            }else{
+                                let deleteAttachmentsFlag = false
+                                if (body.delete_attachments){
+                                    const delete_attachments = JSON.parse(body.delete_attachments)                                    
+                                    if (delete_attachments.length>0){
+                                        const getResourceAttachmentsResponse = await getResourceAttachments({resource_id})
+                                        const getResourceAttachmentsResponseList = await getResourceAttachmentsResponse.map(i=>i.cd_id)
+                                        const flag = delete_attachments.some((i)=>getResourceAttachmentsResponseList.includes(i))
+                                        if(!flag){
+                                            res.status(400).send({
+                                                status:400,
+                                                error:true,
+                                                message:lang.INVALID_DELETE_ATTACHMENTS,
+                                                data:{}
+                                            })
+                                        }else{
+                                            const toDeleteAttachements = getResourceAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
+                                            const len = toDeleteAttachements.length
+                                            for (let i=0;i<len;i++){
+                                                await deleteResourceAttachement({class_id,file_name:toDeleteAttachements[i].file_name,cd_id:toDeleteAttachements[i].cd_id}) 
+                                            }
+                                            deleteAttachmentsFlag = true
+                                        }
+                                    }else{
+                                        deleteAttachmentsFlag = true
+                                    }
+                                }else{
+                                    deleteAttachmentsFlag = true
+                                }
+                                if (deleteAttachmentsFlag){
+                                    let addResourceAttachementFlag = false
+                                    if (files && files.attachements){
+                                        if (!Array.isArray(files.attachements)){
+                                            files.attachements = [files.attachements]
+                                        }   
+                                        const len = files.attachements.length
+                                        for (let i=0;i<len;i++){	
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
+                                            files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
+                                            await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                            if (i+1==len){
+                                                addResourceAttachementFlag=true
+                                            }
+                                        }
+                                    }else{
+                                        addResourceAttachementFlag = true
+                                    }
+                                    if (addResourceAttachementFlag){
+                                        const updateResourceResponse = await updateResource({resource_id,title:body.title,body:body.body})
+                                        if (updateResourceResponse){
+                                            res.send({
+                                                status:200,
+                                                error:false,
+                                                message:"Resource updated!!",
+                                                data:{}
+                                            })
+                                        }else{
+                                            res.status(501).send({
+                                                status:501,
+                                                error:true,
+                                                message:lang.SOMETHING_WENT_WRONG,
+                                                data:{}
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
 module.exports = classRouter    

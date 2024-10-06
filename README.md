@@ -88,3 +88,11 @@
         - Resource should belong for particular classroom.
         - Resource should not be deleted
     - Response : All the details of resource and attachemtns.
+11) Delete Resource (POST) (/classroom/:class_id/resource/:resource_id/delete)
+    - Params : class_id, resource_id
+    - Header : Bearer Token
+    - Conditions :
+        - User must be the creator or teacher of the classroom.
+        - Resource should belong for particular classroom.
+        - Resource should not be deleted
+    - Response : Basic.

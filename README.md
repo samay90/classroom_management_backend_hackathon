@@ -108,3 +108,12 @@
         - delete_attachments should be array of attachment ids in stringified format
         - attachments should be files
     - Response : Basic
+13) Ask Query (POST) (/classroom/:class_id/resource/:resource_id/query/ask)
+    - Params : class_id, resource_id
+    - Header : Bearer Token
+    - Allowed Fields : query_title, query_body
+    - Required Fields : query_body
+    - Conditions :
+        - Resource should belong from same classroom
+        - User should be student of that classroom
+        - query_title should be less than 50chars and query_body should be less than 200chars

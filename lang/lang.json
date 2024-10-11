@@ -34,5 +34,6 @@
     "TITLE_REQUIRED":"title is required!!",
     "INVALID_RESOURCE_ID":"No such resource exist!!",
     "INVALID_DELETE_ATTACHMENTS_TYPE":"delete_attachments should be an array in the format of string!!",
-    "INVALID_DELETE_ATTACHMENTS":"Invalid delete_attachments no such attachment exist!!"
+    "INVALID_DELETE_ATTACHMENTS":"Invalid delete_attachments no such attachment exist!!",
+    "INVALID_QUERY_CONTENT":"For asking a query_body is required!!"
 }

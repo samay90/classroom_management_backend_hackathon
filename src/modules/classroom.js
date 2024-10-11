@@ -197,4 +197,17 @@ const updateResource = ({resource_id,title,body}) =>{
             })
         })
 }
-module.exports = {userClassroomStatus,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const askQuery = ({resource_id,user_id,query_title,query_body,class_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into queries (class_id,resource_id,user_id,query_title,query_body,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?,0);`;
+        db.query(q,[class_id,resource_id,user_id,query_title,query_body,currentTime,currentTime],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

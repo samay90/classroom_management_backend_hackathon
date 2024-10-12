@@ -210,4 +210,32 @@ const askQuery = ({resource_id,user_id,query_title,query_body,class_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const checkQueryFlag = ({query_id,resource_id,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from queries where query_id=? and resource_id=? and user_id=? and is_deleted=0;`;
+        db.query(q,[query_id,resource_id,user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const editQuery = ({query_id,query_title,query_body}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        var fields =[]
+        if (query_title)fields.push(`query_title="${query_title}"`)
+        if (query_body)fields.push(`query_body="${query_body}"`)
+        const q = `update queries set ${fields.join(",")},updated_at=? where query_id=?;`;
+        db.query(q,[currentTime,query_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

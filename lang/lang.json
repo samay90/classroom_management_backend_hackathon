@@ -35,5 +35,6 @@
     "INVALID_RESOURCE_ID":"No such resource exist!!",
     "INVALID_DELETE_ATTACHMENTS_TYPE":"delete_attachments should be an array in the format of string!!",
     "INVALID_DELETE_ATTACHMENTS":"Invalid delete_attachments no such attachment exist!!",
-    "INVALID_QUERY_CONTENT":"For asking a query_body is required!!"
+    "INVALID_QUERY_CONTENT":"For asking a query_body is required!!",
+    "INVALID_QUERY_ID":"Invalid query_id no such query exist!!"
 }

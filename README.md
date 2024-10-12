@@ -124,6 +124,7 @@
     - Required Fields : Anyone of the allowed fields
     - Conditions :
         - Resource should belong from same classroom
+        - Query should belong from same resource
         - User should be student of that classroom and query should belong to user
         - query_title should be less than 50chars and query_body should be less than 200chars
 15) Delete Query (DELETE) (/classroom/:class_id/resource/:resource_id/query/:query_id/delete)
@@ -133,3 +134,14 @@
     - Conditions :
         - Resource should belong from same classroom
         - User should be student of that classroom and query should belong to user
+        - Query should belong from same resource
+16) Solve Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/solve)
+    - Params : class_id, resource_id, query_id
+    - Header : Bearer Token
+    - Allowed Fields : solution
+    - Required Fields : solution
+    - Conditions :
+        - Resource should belong from same classroom
+        - Query should belong from same resource
+        - solution should be less than 500chars
+        - user should be creator or teacher of the classroom

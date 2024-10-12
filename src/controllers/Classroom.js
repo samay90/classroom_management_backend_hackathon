@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -892,5 +892,115 @@ classRouter.delete("/:class_id/resource/:resource_id/query/:query_id/delete",asy
             }
         }
     }
-})  
+})
+classRouter.post("/:class_id/resource/:resource_id/query/:query_id/solve",async (req,res)=>{
+    const user = req.user
+    let {class_id,resource_id,query_id} = req.params
+    const {solution} = req.body
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!solution){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.EMPTY_INPUTS,
+                data:{}
+            })
+        }else{
+            const lengthCheckerResponse = lengthChecker({solution},rules)
+            if (lengthCheckerResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lengthCheckerResponse.message,
+                    data:{}
+                })
+            }else{
+                if (!parseInt(resource_id)){  
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_RESOURCE_ID,
+                        data:{}
+                    })
+                }else{
+                    if (!parseInt(query_id)){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_QUERY_ID,
+                            data:{}
+                        })
+                    }else{
+                        class_id = parseInt(class_id)
+                        resource_id = parseInt(resource_id)
+                        query_id = parseInt(query_id)
+                        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                        if (userClassroomStatusResponse.flag==0){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_CLASSROOM,
+                                data:{}
+                            })
+                        }else{
+                            const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                            if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_ROLE_ELIGIBLE,
+                                    data:{}
+                                })
+                            }else{
+                                const checkResourceFlagResponse = await checkResourceFlag({class_id,resource_id})
+                                if (checkResourceFlagResponse.flag==0){
+                                    res.status(400).send({
+                                        status:400,
+                                        error:true,
+                                        message:lang.INVALID_RESOURCE_ID,
+                                        data:{}
+                                    })
+                                }else{
+                                    const checkQueryFlagResponse = await checkQueryFlagUsingResourceId({resource_id,query_id})
+                                    if (checkQueryFlagResponse.flag==0){
+                                        res.status(400).send({
+                                            status:400,
+                                            error:true,
+                                            message:lang.INVALID_QUERY_ID,
+                                            data:{}
+                                        })
+                                    }else{
+                                        const solveQueryResponse = await writeSolution({query_id,solution,user_id:user.user_id})
+                                        if (solveQueryResponse){
+                                            res.send({
+                                                status:200,
+                                                error:false,
+                                                message:"Solved the query!!",
+                                                data:{}
+                                            })
+                                        }else{
+                                            res.status(501).send({
+                                                status:501,
+                                                error:true,
+                                                message:lang.SOMETHING_WENT_WRONG,
+                                                data:{}
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
 module.exports = classRouter

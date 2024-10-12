@@ -251,4 +251,30 @@ const deleteQuery = ({query_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const checkQueryFlagUsingResourceId = ({resource_id,query_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from queries where resource_id=? and query_id=? and is_deleted=0;`;
+        db.query(q,[resource_id,query_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+    
+}
+const writeSolution = ({query_id,solution,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update queries set solution=?,solution_by=?,solved_at=? where query_id=?;`;
+        db.query(q,[solution,user_id,currentTime,query_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

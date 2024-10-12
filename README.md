@@ -126,3 +126,10 @@
         - Resource should belong from same classroom
         - User should be student of that classroom and query should belong to user
         - query_title should be less than 50chars and query_body should be less than 200chars
+15) Delete Query (DELETE) (/classroom/:class_id/resource/:resource_id/query/:query_id/delete)
+    - Params : class_id, resource_id, query_id
+    - Header : Bearer Token
+    - Allowed Fields : None
+    - Conditions :
+        - Resource should belong from same classroom
+        - User should be student of that classroom and query should belong to user

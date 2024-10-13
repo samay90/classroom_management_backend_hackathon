@@ -16,8 +16,6 @@
     "NO_SUCH_EXIST":"No such user exist!!",
     "USER_DELETED":"Your account is being deleted!!",
     "USER_UNVERIFIED":"Your account is being banned due to security reasons!!",
-    "INVALID_TIME":"Invalid time. It should be in between 0 and 24 hrs!!",
-    "INVALID_CLOSE_TIME":"Invalid close_time. It should be greater then open_time!!",
     "EMPTY_INPUTS":"No inputs entered!!",
     "MULTIPLE_PROFILE_IMAGES":"Multiple profile images uploaded!!",
     "INVALID_PROFILE_IMAGE_SIZE":"Size of profile image should be less than 1MB!!",
@@ -36,5 +34,9 @@
     "INVALID_DELETE_ATTACHMENTS_TYPE":"delete_attachments should be an array in the format of string!!",
     "INVALID_DELETE_ATTACHMENTS":"Invalid delete_attachments no such attachment exist!!",
     "INVALID_QUERY_CONTENT":"For asking a query_body is required!!",
-    "INVALID_QUERY_ID":"Invalid query_id no such query exist!!"
+    "INVALID_QUERY_ID":"Invalid query_id no such query exist!!",
+    "INVALID_ATTENDANCE_TYPE":"Invalid attendance type it should be object (key : student_id , value : (0/1) )!!",
+    "INVALID_DATE":"Invalid date. Please enter date if all the formats allowed!!",
+    "INVALID_ATTENDANCE_VALUE":"Invalid attendance value. It should be 0 or 1!!",
+    "INVALID_ATTENDANCE_ID":"Invalid attendance_id. No such student exist!!"
 }

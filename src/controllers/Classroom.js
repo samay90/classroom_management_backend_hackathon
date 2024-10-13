@@ -1,12 +1,13 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
 const checker = require("../helpers/functions/checker")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
+const isDictionary = require("../helpers/functions/isDictionary.js")
 const fs = require('fs');
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
@@ -992,6 +993,146 @@ classRouter.post("/:class_id/resource/:resource_id/query/:query_id/solve",async 
                                                 message:lang.SOMETHING_WENT_WRONG,
                                                 data:{}
                                             })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,res)=>{
+    const user = req.user
+    let {class_id,resource_id} = req.params
+    const {attendance,date} = req.body
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(resource_id)){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_RESOURCE_ID,
+                data:{}
+            })
+        }else{
+            const checkerResponse = checker({attendance,date},["attendance","date"])
+            if (checkerResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+                    data:{}
+                })
+            }else{
+                class_id = parseInt(class_id)
+                resource_id = parseInt(resource_id)
+                const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                if (userClassroomStatusResponse.flag==0){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_CLASSROOM,
+                        data:{}
+                    })
+                }else{
+                    const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                    if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_ROLE_ELIGIBLE,
+                            data:{}
+                        })
+                    }else{
+                        const checkResourceFlagResponse = await checkResourceFlag({class_id,resource_id})
+                        if (checkResourceFlagResponse.flag==0){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_RESOURCE_ID,
+                                data:{}
+                            })
+                        }else{
+                            if (!isDictionary(attendance)){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_ATTENDANCE_TYPE,
+                                    data:{}
+                                })
+                            }else{
+                                const attend_date = new Date(date)
+                                if (attend_date=="Invalid Date"){
+                                    res.status(400).send({
+                                        status:400,
+                                        error:true,
+                                        message:lang.INVALID_DATE,
+                                        data:{}
+                                    })
+                                }else{
+                                    const user_ids = Object.keys(attendance)
+                                    if (user_ids.length==0){
+                                        res.status(400).send({
+                                            status:400,
+                                            error:true,
+                                            message:lang.EMPTY_INPUTS,
+                                            data:{}
+                                        })
+                                    }else{
+                                        const attendanceFlag = user_ids.some((i)=> !(attendance[i]==1 || attendance[i]==0))
+                                        if (attendanceFlag){
+                                            res.status(400).send({
+                                                status:400,
+                                                error:true,
+                                                message:lang.INVALID_ATTENDANCE_VALUE,
+                                                data:{}
+                                            })
+                                        }else{
+                                            const checkStudentsFlagResponse = await checkStudentsFlag({class_id,user_ids})
+                                            if (checkStudentsFlagResponse.flag!==user_ids.length){
+                                                res.status(400).send({
+                                                    status:400,
+                                                    error:true,
+                                                    message:lang.INVALID_ATTENDANCE_ID,
+                                                    data:{}
+                                                })
+                                            }else{
+                                                const deleteOldAttendanceResponse = await deleteOldAttendance({resource_id,class_id,user_ids})
+                                                if (deleteOldAttendanceResponse){
+                                                    const markAttendanceResponse = await markAttendance({resource_id,class_id,attendance,attend_date:attend_date.getTime().toString()})
+                                                    if (markAttendanceResponse){
+                                                        res.send({
+                                                            status:200,
+                                                            error:false,
+                                                            message:"Marked attendance!!",
+                                                            data:{}
+                                                        })
+                                                    }else{
+                                                        res.status(501).send({
+                                                            status:501,
+                                                            error:true,
+                                                            message:lang.SOMETHING_WENT_WRONG,
+                                                            data:{}
+                                                        })
+                                                    }
+                                                }else{
+                                                    res.status(501).send({
+                                                        status:501,
+                                                        error:true,
+                                                        message:lang.SOMETHING_WENT_WRONG,
+                                                        data:{}
+                                                    })
+                                                }
+                                            }
                                         }
                                     }
                                 }

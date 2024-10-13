@@ -277,4 +277,42 @@ const writeSolution = ({query_id,solution,user_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const checkStudentsFlag = ({class_id,user_ids}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from connections where class_id=? and user_id in (?) and role="student" and is_deleted=0;`;
+        db.query(q,[class_id,user_ids],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const deleteOldAttendance = ({resource_id,class_id,user_ids}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `delete from attendance where resource_id=? and class_id=? and is_deleted=0 and user_id in (?)`;
+        db.query(q,[resource_id,class_id,user_ids],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const markAttendance = ({resource_id,class_id,attendance,attend_date}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into attendance (resource_id,class_id,user_id,has_attended,attend_date,is_deleted,created_at,updated_at) values ${Object.keys(attendance).map(i=>`(${resource_id},${class_id},${i},${attendance[i]},${attend_date},0,${currentTime},${currentTime})`).join(",")};`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

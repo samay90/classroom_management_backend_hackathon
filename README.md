@@ -145,3 +145,15 @@
         - Query should belong from same resource
         - solution should be less than 500chars
         - user should be creator or teacher of the classroom
+17) Mark Attendance (POST) (/classroom/:class_id/resource/:resource_id/attendance/mark)
+    - Parmas : class_id, resource_id
+    - Header : Bearer Token
+    - Allowed Fields : attendance, date
+    - Required Fields : All the allowed fields
+    - Conditons :
+        - Resource should belong from same classroom.
+        - User must be either teacher or creator of the classrooom.
+        - Attendance must be of the form {"user_id":(0/1),...}.
+        - user_id of the each user in the attendance must be the student of the classroom.
+        - Date can be any valid format of the Javascript.
+        - The older attendance of students provided in attendance will get deleted.

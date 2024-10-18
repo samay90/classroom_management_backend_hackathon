@@ -38,5 +38,6 @@
     "INVALID_ATTENDANCE_TYPE":"Invalid attendance type it should be object (key : student_id , value : (0/1) )!!",
     "INVALID_DATE":"Invalid date. Please enter date if all the formats allowed!!",
     "INVALID_ATTENDANCE_VALUE":"Invalid attendance value. It should be 0 or 1!!",
-    "INVALID_ATTENDANCE_ID":"Invalid attendance_id. No such student exist!!"
+    "INVALID_ATTENDANCE_ID":"Invalid attendance_id. No such student exist!!",
+    "TOTAL_MARKS_REQUIRED":"total_marks is required and of type integer!!"
 }

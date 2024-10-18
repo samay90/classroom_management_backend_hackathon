@@ -157,3 +157,14 @@
         - user_id of the each user in the attendance must be the student of the classroom.
         - Date can be any valid format of the Javascript.
         - The older attendance of students provided in attendance will get deleted.
+18) Assign Assignment (POST) (/classroom/:class_id/assignments/new)
+    - Parmas : class_id
+    - Header : Bearer Token
+    - Allowed Fields : title, body, due_date_time, total_marks
+    - Required Fields : title, due_date_time, total_marks
+    - Conditions : 
+        - Classroom should exist.
+        - User should be creator or teacher of the class
+        - due_date_time can be any valid format of the Javascript.
+        - title shoulld be less than 50chars and body should be less than 200chars.
+        - total_marks should be an integer.

@@ -315,4 +315,17 @@ const markAttendance = ({resource_id,class_id,attendance,attend_date}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const createAssignment = ({class_id,title,body,due_date_time,user_id,total_marks}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into assignments (class_id,title,body,due_date_time,user_id,total_marks,created_at,updated_at) values (?,?,?,?,?,?,?,?);`;
+        db.query(q,[class_id,title,body,due_date_time,user_id,total_marks,currentTime,currentTime],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

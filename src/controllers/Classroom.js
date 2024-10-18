@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -239,7 +239,12 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
             })
         }else{
             if (!((typeof(body.title)=="string" && (!body.body || typeof(body.body)=="string")))){
-                
+                res.status(400).send({
+                    status:400,  
+                    error:true,
+                    message:lang.STRING_VALUES,
+                    data:{}
+                })
             }else{
                 const lengthCheckerResponse = lengthChecker(body,rules)
                 if (lengthCheckerResponse.error){
@@ -1134,6 +1139,116 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                                                 }
                                             }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+classRouter.post("/:class_id/assignment/new",async (req,res)=>{
+    const body = req.body
+    const user = req.user
+    const files = req.files
+    let {class_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        class_id = parseInt(class_id)
+        const checkerResponse = checker(body,["title","total_marks","due_date_time"])
+        if (checkerResponse.error){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+                data:{}
+            })
+        }else{
+            const lengthCheckerResponse = await lengthChecker(body,rules)
+            if (lengthCheckerResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.PLEASE_ENTER+lengthCheckerResponse.empty.join(", ")+"!!",
+                    data:{}
+                })
+            }else{
+                const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                if (userClassroomStatusResponse.flag==0){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_CLASSROOM,
+                        data:{}
+                    })
+                }else{
+                    const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                    if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_ROLE_ELIGIBLE,
+                            data:{}
+                        })
+                    }else{
+                        const due_date_time = new Date(body.due_date_time)
+                        if (due_date_time=="Invalid Date"){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_DATE,
+                                data:{}
+                            })
+                        }else{
+                            if (!parseInt(body.total_marks)){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.TOTAL_MARKS_REQUIRED,
+                                    data:{}
+                                })
+                            }else{
+                                const createAssignmentResponse = await createAssignment({class_id,title:body.title,body:body.body,due_date_time:due_date_time.getTime().toString(),user_id:user.user_id,total_marks:parseInt(body.total_marks)})
+                                if (createAssignmentResponse){
+                                    let resourceFlag = false
+                                    if (files && files.attachements){
+                                        if (!Array.isArray(files.attachements)){
+                                            files.attachements = [files.attachements]
+                                        }   
+                                        const len = files.attachements.length
+                                        for (let i=0;i<len;i++){	
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
+                                            files.attachements[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
+                                            await addClassDocument({class_id,ra_id:`a${addResourceResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                            if (i+1==len){
+                                                resourceFlag=true
+                                            }
+                                        }
+                                    }else{
+                                        resourceFlag = true
+                                    }
+                                    if (resourceFlag){
+                                        res.send({
+                                            status:200,
+                                            error:false,
+                                            message:"Assigned to students!!",
+                                            data:{}
+                                        })
+                                    }else{
+                                        res.status(501).send({
+                                            status:501,
+                                            error:true,
+                                            message:lang.SOMETHING_WENT_WRONG,
+                                            data:{}
+                                        })
                                     }
                                 }
                             }

@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -276,14 +276,14 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                             const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body})
                             let resourceFlag = false
                             if (addResourceResponse){
-                                if (files && files.attachements){
-                                    if (!Array.isArray(files.attachements)){
-                                        files.attachements = [files.attachements]
+                                if (files && files.attachments){
+                                    if (!Array.isArray(files.attachments)){
+                                        files.attachments = [files.attachments]
                                     }   
-                                    const len = files.attachements.length
+                                    const len = files.attachments.length
                                     for (let i=0;i<len;i++){	
-                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
-                                        files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                        files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
                                         await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                         if (i+1==len){
                                             resourceFlag=true
@@ -550,10 +550,10 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                                 data:{}
                                             })
                                         }else{
-                                            const toDeleteAttachements = getResourceAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
-                                            const len = toDeleteAttachements.length
+                                            const toDeleteattachments = getResourceAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
+                                            const len = toDeleteattachments.length
                                             for (let i=0;i<len;i++){
-                                                await deleteResourceAttachement({class_id,file_name:toDeleteAttachements[i].file_name,cd_id:toDeleteAttachements[i].cd_id}) 
+                                                await deleteResourceAttachement({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
                                             }
                                             deleteAttachmentsFlag = true
                                         }
@@ -565,14 +565,14 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                 }
                                 if (deleteAttachmentsFlag){
                                     let addResourceAttachementFlag = false
-                                    if (files && files.attachements){
-                                        if (!Array.isArray(files.attachements)){
-                                            files.attachements = [files.attachements]
+                                    if (files && files.attachments){
+                                        if (!Array.isArray(files.attachments)){
+                                            files.attachments = [files.attachments]
                                         }   
-                                        const len = files.attachements.length
+                                        const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
-                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
-                                            files.attachements[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                            files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
                                             await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                             if (i+1==len){
                                                 addResourceAttachementFlag=true
@@ -1219,15 +1219,15 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                 const createAssignmentResponse = await createAssignment({class_id,title:body.title,body:body.body,due_date_time:due_date_time.getTime().toString(),user_id:user.user_id,total_marks:parseInt(body.total_marks)})
                                 if (createAssignmentResponse){
                                     let resourceFlag = false
-                                    if (files && files.attachements){
-                                        if (!Array.isArray(files.attachements)){
-                                            files.attachements = [files.attachements]
+                                    if (files && files.attachments){
+                                        if (!Array.isArray(files.attachments)){
+                                            files.attachments = [files.attachments]
                                         }   
-                                        const len = files.attachements.length
+                                        const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
-                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachements[i].mimetype.split("/")[1]
-                                            files.attachements[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
-                                            await addClassDocument({class_id,ra_id:`a${addResourceResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                            files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
+                                            await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                             if (i+1==len){
                                                 resourceFlag=true
                                             }
@@ -1249,6 +1249,185 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                             message:lang.SOMETHING_WENT_WRONG,
                                             data:{}
                                         })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
+    const body = req.body
+    const user = req.user
+    let files = req.files;
+    let {class_id,assignment_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(assignment_id)){  
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_ASSIGNMENT_ID,
+                data:{}
+            })
+        }else{
+            class_id = parseInt(class_id)
+            assignment_id = parseInt(assignment_id)
+            let dueDateTimeFlag = false
+            if (body.due_date_time){
+                var temp = new Date(body.due_date_time)
+                if (temp.toString()=="Invalid Date"){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_DATE,
+                        data:{}
+                    })
+                }else{
+                    dueDateTimeFlag=true
+                }
+            }else{
+                dueDateTimeFlag=true
+            }
+            if (dueDateTimeFlag){
+                let totalMarksFlag = false
+                if(body.total_marks){
+                    if (!parseInt(body.total_marks)){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INTEGER_MARKS,
+                            data:{}
+                        })
+                    }else{
+                        totalMarksFlag=true
+                    }
+                }else{
+                    totalMarksFlag= true
+                }
+                if (totalMarksFlag){
+                    const lengthCheckerResponse = lengthChecker(body,rules)
+                    if (lengthCheckerResponse.error){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lengthCheckerResponse.message,
+                            data:{}
+                        })
+                    }else{
+                        if ((body.delete_attachments && !JSON.parse(body.delete_attachments))){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_DELETE_ATTACHMENTS_TYPE,
+                                data:{}
+                            })
+                        }else{
+                            const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                            if (userClassroomStatusResponse.flag==0){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_CLASSROOM,
+                                    data:{}
+                                })
+                            }else{
+                                const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                                if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                                    res.status(400).send({
+                                        status:400,
+                                        error:true,
+                                        message:lang.INVALID_ROLE_ELIGIBLE,
+                                        data:{}
+                                    })
+                                }else{
+                                    const checkAssignmentFlagResponse = await checkAssignmentFlag({class_id,assignment_id})
+                                    if (checkAssignmentFlagResponse.flag==0){
+                                        res.status(400).send({
+                                            status:400,
+                                            error:true,
+                                            message:lang.INVALID_ASSIGNMENT_ID,
+                                            data:{}
+                                        })
+                                    }else{
+                                        let deleteAttachmentsFlag = false
+                                        if (body.delete_attachments){
+                                            const delete_attachments = JSON.parse(body.delete_attachments)                                    
+                                            if (delete_attachments.length>0){
+                                                const getAssignmentsAttachmentsResponse = await getAssignmentAttachments({assignment_id})
+                                                const getAssignmentseAttachmentsResponseList = await getAssignmentsAttachmentsResponse.map(i=>i.cd_id)
+                                                const flag = delete_attachments.some((i)=>getAssignmentseAttachmentsResponseList.includes(i))
+                                                if(!flag){
+                                                    res.status(400).send({
+                                                        status:400,
+                                                        error:true,
+                                                        message:lang.INVALID_DELETE_ATTACHMENTS,
+                                                        data:{}
+                                                    })
+                                                }else{
+                                                    const toDeleteattachments = getAssignmentsAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
+                                                    const len = toDeleteattachments.length
+                                                    for (let i=0;i<len;i++){
+                                                        await deleteAssignmenteAttachement({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
+                                                    }
+                                                    deleteAttachmentsFlag = true
+                                                }
+                                            }else{
+                                                deleteAttachmentsFlag = true
+                                            }
+                                        }else{
+                                            deleteAttachmentsFlag = true
+                                        }
+                                        if (deleteAttachmentsFlag){
+                                            let addAssignementAttachementFlag = false
+                                            if (files && files.attachments){
+                                                if (!Array.isArray(files.attachments)){
+                                                    files.attachments = [files.attachments]
+                                                }   
+                                                const len = files.attachments.length
+                                                for (let i=0;i<len;i++){	
+                                                    const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                                    files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
+                                                    await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
+                                                    if (i+1==len){
+                                                        addAssignementAttachementFlag=true
+                                                    }
+                                                }
+                                            }else{
+                                                addAssignementAttachementFlag = true
+                                            }
+                                            if (addAssignementAttachementFlag){
+                                                let due_date_time = null
+                                                if (body.due_date_time){
+                                                    due_date_time = new Date(body.due_date_time)
+                                                }
+                                                const updateAssignmentResponse = await updateAssignment({assignment_id,title:body.title,body:body.body,due_date_time:due_date_time?.getTime().toString(),total_marks:parseInt(body.total_marks)})
+                                                if (updateAssignmentResponse){
+                                                    res.send({
+                                                        status:200,
+                                                        error:false,
+                                                        message:"Assignment updated!!",
+                                                        data:{}
+                                                    })
+                                                }else{
+                                                    res.status(501).send({
+                                                        status:501,
+                                                        error:true,
+                                                        message:lang.SOMETHING_WENT_WRONG,
+                                                        data:{}
+                                                    })
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

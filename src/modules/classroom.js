@@ -328,4 +328,69 @@ const createAssignment = ({class_id,title,body,due_date_time,user_id,total_marks
         })
     })
 }
-module.exports = {userClassroomStatus,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const checkAssignmentFlag = ({class_id,assignment_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from assignments where class_id=? and assignment_id=? and is_deleted=0;`;
+        db.query(q,[class_id,assignment_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getAssignmentAttachments = ({assignment_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select cd_id,file_name from class_documents where ra_id=? and cd_type="assignment" and is_deleted=0;`;
+        db.query(q,[`a${assignment_id}`],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const deleteAssignmenteAttachement = ({cd_id,file_name,class_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update class_documents set is_deleted=1 where cd_id=?;`;
+        db.query(q,[cd_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                fs.unlinkSync(`./public/classrooms/${class_id}/assignments/${file_name}`,(err)=>{console.log(err)})
+                resolve(result)
+            }
+        })
+    })
+}
+const updateAssignment = ({assignment_id,title,body,due_date_time,total_marks}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        let fields = []
+        if (title){
+            fields.push(`title="${title}"`)
+        }
+        if (body){
+            fields.push(`body="${body}"`)
+        }
+        if (due_date_time){
+            fields.push(`due_date_time="${due_date_time}"`)
+        }
+        if (total_marks){
+            fields.push(`total_marks=${total_marks}`)
+        }
+        fields.push(`updated_at="${currentTime}"`)
+        const q = `update assignments set ${fields.join(",")} where assignment_id=?;`;
+        db.query(q,[assignment_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,updateAssignment,deleteAssignmenteAttachement,getAssignmentAttachments,checkAssignmentFlag,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

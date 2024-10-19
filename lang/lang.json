@@ -39,5 +39,7 @@
     "INVALID_DATE":"Invalid date. Please enter date if all the formats allowed!!",
     "INVALID_ATTENDANCE_VALUE":"Invalid attendance value. It should be 0 or 1!!",
     "INVALID_ATTENDANCE_ID":"Invalid attendance_id. No such student exist!!",
-    "TOTAL_MARKS_REQUIRED":"total_marks is required and of type integer!!"
+    "TOTAL_MARKS_REQUIRED":"total_marks is required and of type integer!!",
+    "INVALID_ASSIGNMENT_ID":"Invalid assignment_id. No such assignment exist!!",
+    "INTEGER_MARKS":"total_marks should be of type integer!!"
 }

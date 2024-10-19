@@ -71,7 +71,7 @@
         - If action_type is M then action should provided
     - Response : Basic
 9) Add Resource (POST) (/classroom/:class_id/resource/new)
-    - Allowed Fields : title, body, attachements
+    - Allowed Fields : title, body, attachments
     - Required Fields : title
     - Params : class_id
     - Header :  Bearer Token
@@ -160,7 +160,7 @@
 18) Assign Assignment (POST) (/classroom/:class_id/assignments/new)
     - Parmas : class_id
     - Header : Bearer Token
-    - Allowed Fields : title, body, due_date_time, total_marks
+    - Allowed Fields : title, body, due_date_time, total_marks, attachments (files)
     - Required Fields : title, due_date_time, total_marks
     - Conditions : 
         - Classroom should exist.
@@ -168,3 +168,18 @@
         - due_date_time can be any valid format of the Javascript.
         - title shoulld be less than 50chars and body should be less than 200chars.
         - total_marks should be an integer.
+    - Response : Basic
+19) Edit Assignment (POST) (/classroom/:class_id/asssignment/:assignment_id/edit)
+    - Params : class_id, assignment_id
+    - Header : Bearer Token
+    - Allowed Fields : title, body, due_date_time, total_marks, delete_attachments, attachments (files)
+    - Required Fields : Anyone of the allowed fields
+    - Conditions :
+    - Classroom should exist.
+        - User should be creator or teacher of the class
+        - due_date_time can be any valid format of the Javascript.
+        - title shoulld be less than 50chars and body should be less than 200chars.
+        - total_marks should be an integer.
+        - delete_attachments should be array of attachment ids in stringified format
+        - attachments should be files
+    - Response : Basic

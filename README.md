@@ -199,7 +199,7 @@
     - Allowed Fields : attachments (files)
     - Required Fields : attachments (files)
     - Conditions :
-    - Classroom should exist.
+        - Classroom should exist.
         - User should be student of the class
         - Assignment should exist and should belong from that classroom.
         - current time should be less than due_date_time.

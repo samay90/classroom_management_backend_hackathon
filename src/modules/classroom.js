@@ -393,4 +393,106 @@ const updateAssignment = ({assignment_id,title,body,due_date_time,total_marks}) 
         })
     })
 }
-module.exports = {userClassroomStatus,updateAssignment,deleteAssignmenteAttachement,getAssignmentAttachments,checkAssignmentFlag,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const deleteAssignment = ({assignment_id,class_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `update assignments set is_deleted=1,updated_at=? where assignment_id=?;`;
+        db.query(q,[currentTime,assignment_id],async (err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                const attachements = await getAssignmentAttachments({assignment_id})
+                for (var i=0;i<attachements.length;i++){
+                    await deleteAssignmenteAttachement({cd_id:attachements[i].cd_id,file_name:attachements[i].file_name,class_id:class_id})
+                }
+                resolve(result)
+            }
+        })
+    })
+}
+const checkedMarkedFlag = ({assignment_id,user_id,class_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select marks from submissions where assignment_id=? and user_id=? and class_id=? and is_deleted=0;`;
+        db.query(q,[assignment_id,user_id,class_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                if (result.length==1){
+                    resolve({
+                        flag:result[0].marks!==null
+                    })
+                }else{
+                    resolve({
+                        flag:false
+                    })
+                }
+            }
+        })
+    })
+}
+const getDueDate = ({assignment_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select due_date_time from assignments where assignment_id=?;`;
+        db.query(q,[assignment_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const submitAssignment = ({class_id,assignment_id,user_id,file_name,path}) =>{
+    return new Promise(async (resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `insert into submissions (class_id,assignment_id,user_id,file_name,path,marks,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?,?,?);`;
+        await deleteAssignmentSubmission({class_id,assignment_id,user_id})
+        db.query(q,[class_id,assignment_id,user_id,JSON.stringify(file_name),JSON.stringify(path),null,currentTime,currentTime,0], (err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const getSubmissionAttachment = ({submission_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select file_name,path from submissions where submission_id=?;`;
+        db.query(q,[submission_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const deleteAssignmentSubmission = ({class_id,assignment_id,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const currentTime = getTimeString()
+        const q = `select submission_id from submissions where class_id=? and assignment_id=? and user_id=? and is_deleted=0;`;
+        db.query(q,[class_id,assignment_id,user_id],(err2,result2)=>{
+            if (err2){
+                reject(err2)
+            }else{
+                const q = `update submissions set is_deleted=1,updated_at=? where class_id=? and assignment_id=? and submission_id=? and is_deleted=0;`;
+                db.query(q,[currentTime,class_id,assignment_id,result2[0]?.submission_id],async (err,result)=>{
+                    if (err){
+                        reject(err)
+                    }else{
+                        if (result2[0]){
+                            let attachements = await getSubmissionAttachment({submission_id:result2[0].submission_id})
+                            attachements =await JSON.parse(attachements.file_name)
+                            for (var i=0;i<attachements.length;i++){
+                                fs.unlinkSync(`./public/classrooms/${class_id}/assignments/submissions/${attachements[i]}`,(err)=>{console.log(err)})
+                            }
+                        }
+                        resolve(result)
+                    }
+                })
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,getDueDate,deleteAssignmentSubmission,checkedMarkedFlag,submitAssignment,deleteAssignment,updateAssignment,deleteAssignmenteAttachement,getAssignmentAttachments,checkAssignmentFlag,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

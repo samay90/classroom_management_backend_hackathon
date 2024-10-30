@@ -41,5 +41,8 @@
     "INVALID_ATTENDANCE_ID":"Invalid attendance_id. No such student exist!!",
     "TOTAL_MARKS_REQUIRED":"total_marks is required and of type integer!!",
     "INVALID_ASSIGNMENT_ID":"Invalid assignment_id. No such assignment exist!!",
-    "INTEGER_MARKS":"total_marks should be of type integer!!"
+    "INTEGER_MARKS":"total_marks should be of type integer!!",
+    "NO_ASSIGNMENT_SUBMITTED":"No assignment file submitted!!",
+    "ALREADY_MARKED":"Your submitted assignment is already marked. Can't submit again!!",
+    "ASSIGNMENT_DEADLINE_OVER":"Assignment deadline is already over, can't submit it!!"
 }

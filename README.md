@@ -175,7 +175,7 @@
     - Allowed Fields : title, body, due_date_time, total_marks, delete_attachments, attachments (files)
     - Required Fields : Anyone of the allowed fields
     - Conditions :
-    - Classroom should exist.
+        - Classroom should exist.
         - User should be creator or teacher of the class
         - due_date_time can be any valid format of the Javascript.
         - title shoulld be less than 50chars and body should be less than 200chars.
@@ -183,3 +183,27 @@
         - delete_attachments should be array of attachment ids in stringified format
         - attachments should be files
     - Response : Basic
+20) Delete Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/delete)
+    - Params : class_id, assignment_id
+    - Header : Bearer Token
+    - Allowed Fields : Null
+    - Required Fields : Null
+    - Conditions : Null
+        - Classroom should exist.
+        - Assignment should exist and should belong from that classroom.
+        - User should be creator or teacher of the class
+    - Response : Basic
+21) Submit Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submit)
+    - Params : class_id, assignment_id
+    - Header : Bearer Token
+    - Allowed Fields : attachments (files)
+    - Required Fields : attachments (files)
+    - Conditions :
+    - Classroom should exist.
+        - User should be student of the class
+        - Assignment should exist and should belong from that classroom.
+        - current time should be less than due_date_time.
+        - Previous submission should not be marked
+        - Previous submission would automitically deleted.
+        - attachments should be files
+    - Response : Basic + paths of attachements

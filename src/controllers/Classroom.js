@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -9,6 +9,7 @@ const checker = require("../helpers/functions/checker")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
 const isDictionary = require("../helpers/functions/isDictionary.js")
 const fs = require('fs');
+const { parse } = require("path")
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -1227,7 +1228,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
                                             files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
-                                            await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                            await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
                                             if (i+1==len){
                                                 resourceFlag=true
                                             }
@@ -1438,4 +1439,194 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
         }
     }
 })
+classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>{
+    const user = req.user
+    let {class_id,assignment_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            if (!parseInt(assignment_id)){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ASSIGNMENT_ID,
+                    data:{}
+                })
+            }else{
+                const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_CLASSROOM,
+                        data:{}
+                    })
+                }else{
+                    const checkAssignmentFlagResponse = await checkAssignmentFlag({class_id,assignment_id})
+                    if (checkAssignmentFlagResponse.flag==0){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_ASSIGNMENT_ID,
+                            data:{}
+                        })
+                    }else{
+                        const deleteAssignmentResponse = await deleteAssignment({class_id,assignment_id})
+                        if (deleteAssignmentResponse){
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Assignment deleted!!",
+                                data:{}
+                            })
+                        }else{
+                            res.status(501).send({
+                                status:501,
+                                error:true,
+                                message:lang.SOMETHING_WENT_WRONG,
+                                data:{}
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>{
+    const user = req.user;
+    let files = req.files;
+    let {class_id,assignment_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!(files && files.attachments)){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.EMPTY_INPUTS,
+                data:{}
+            })
+        }else{
+            if (!Array.isArray(files.attachments)){
+                files.attachments = [files.attachments]   
+            }
+            const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+            if (userClassroomStatusResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_CLASSROOM,
+                    data:{}
+                })
+            }else{
+                if (!parseInt(assignment_id)){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_ASSIGNMENT_ID,
+                        data:{}
+                    })
+                }else{
+                    assignment_id = parseInt(assignment_id)
+                    class_id = parseInt(class_id)
+                    const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                    if (!(getUserRoleResponse.role=="student")){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_ROLE_ELIGIBLE,
+                            data:{}
+                        })  
+                    }else{
+                        const checkedMarkedFlagResponse = await checkedMarkedFlag({class_id,assignment_id,user_id:user.user_id})
+                        if (checkedMarkedFlagResponse.flag==1){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.ALREADY_MARKED,
+                                data:{}
+                            })
+                        }else{
+                            const getDueDateResponse = await getDueDate({assignment_id})
+                            const currentTime = getTimeString()
+                            console.log(getDueDateResponse.due_date_time,currentTime)
+                            if (parseInt(getDueDateResponse.due_date_time)<parseInt(currentTime)){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.ASSIGNMENT_DEADLINE_OVER,
+                                    data:{}
+                                })
+                            }else{
+                                const checkAssignmentFlagResponse = await checkAssignmentFlag({class_id,assignment_id})
+                                if (checkAssignmentFlagResponse.flag==0){
+                                    res.status(400).send({
+                                        status:400,
+                                        error:true,
+                                        message:lang.INVALID_ASSIGNMENT_ID,
+                                        data:{}
+                                    })
+                                }else{
+                                    const len = files.attachments.length
+                                    let completedFlag = false
+                                    let paths = []
+                                    let file_names =[]
+                                    for (let i=0;i<len;i++){	
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                        files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/submissions/${fileName}`)
+                                        paths.push("http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/submissions/"+fileName)
+                                        file_names.push(fileName)
+                                        if (i+1==len){
+                                            completedFlag=true
+                                        }
+                                    }
+                                    if (completedFlag){
+                                        const submitAssignmentResponse = await submitAssignment({class_id,assignment_id,user_id:user.user_id,path:paths,file_name:file_names})
+                                        if (submitAssignmentResponse){
+                                            res.send({
+                                                status:200,
+                                                error:false,
+                                                message:"Assignment submitted!!",
+                                                data:{
+                                                    path:paths
+                                                }
+                                            })
+                                        }else{
+                                            res.status(501).send({
+                                                status:501,
+                                                error:true,
+                                                message:lang.SOMETHING_WENT_WRONG,
+                                                data:{}
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})   
 module.exports = classRouter

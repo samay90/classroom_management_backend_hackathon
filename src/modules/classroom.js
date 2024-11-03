@@ -495,4 +495,40 @@ const deleteAssignmentSubmission = ({class_id,assignment_id,user_id}) =>{
         })
     })
 }
-module.exports = {userClassroomStatus,getDueDate,deleteAssignmentSubmission,checkedMarkedFlag,submitAssignment,deleteAssignment,updateAssignment,deleteAssignmenteAttachement,getAssignmentAttachments,checkAssignmentFlag,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}
+const checkSubmissionFlag = ({class_id,assignment_id,submission_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from submissions where class_id=? and assignment_id=? and submission_id=? and is_deleted=0;`;
+        db.query(q,[class_id,assignment_id,submission_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const markSubmission = ({submission_id,marks}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update submissions set marks=? where submission_id=?;`;
+        db.query(q,[marks,submission_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const getTotalMarks = ({assignment_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select total_marks from assignments where assignment_id=?;`;
+        db.query(q,[assignment_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {userClassroomStatus,markSubmission,checkSubmissionFlag,getTotalMarks,getDueDate,deleteAssignmentSubmission,checkedMarkedFlag,submitAssignment,deleteAssignment,updateAssignment,deleteAssignmenteAttachement,getAssignmentAttachments,checkAssignmentFlag,createAssignment,deleteOldAttendance,markAttendance,checkStudentsFlag,writeSolution,checkQueryFlagUsingResourceId,deleteQuery,editQuery,checkQueryFlag,askQuery,updateResource,deleteResourceAttachement,getResourceAttachments,getResource,removeUser,updateRole,getUserRole,updateClassroom,addResource,addClassDocument,checkResourceFlag,deleteResource}

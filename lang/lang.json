@@ -44,5 +44,8 @@
     "INTEGER_MARKS":"total_marks should be of type integer!!",
     "NO_ASSIGNMENT_SUBMITTED":"No assignment file submitted!!",
     "ALREADY_MARKED":"Your submitted assignment is already marked. Can't submit again!!",
-    "ASSIGNMENT_DEADLINE_OVER":"Assignment deadline is already over, can't submit it!!"
+    "ASSIGNMENT_DEADLINE_OVER":"Assignment deadline is already over, can't submit it!!",
+    "MARKS_INTEGER":"Marks should be of type integer!!",
+    "INVALID_SUBMISSION_ID":"No such submission by student exist!!",
+    "INVALID_MARKS":"Marks should be less than or equal to total_marks!!"
 }

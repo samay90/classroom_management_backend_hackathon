@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -10,6 +10,7 @@ const { getTimeString } = require("../helpers/functions/timeToWordDate")
 const isDictionary = require("../helpers/functions/isDictionary.js")
 const fs = require('fs');
 const { parse } = require("path")
+const { isNumber } = require("util")
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -1628,5 +1629,105 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
             }
         }
     }
-})   
+})
+classRouter.post("/:class_id/assignment/:assignment_id/submission/:submission_id/mark",async (req,res)=>{
+    const user = req.user;
+    const body = req.body;
+    let {class_id,assignment_id,submission_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(assignment_id)){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_ASSIGNMENT_ID,
+                data:{}
+            })
+        }else{
+            if (!parseInt(submission_id)){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ASSIGNMENT_ID,
+                    data:{}
+                })
+            }else{
+                class_id = parseInt(class_id)
+                assignment_id = parseInt(assignment_id)
+                submission_id = parseInt(submission_id)
+                if (!body.marks || !Number.isInteger(body.marks)){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.MARKS_INTEGER,
+                        data:{}
+                    })
+                }else{
+                    const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                    if (userClassroomStatusResponse.flag==0){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_CLASSROOM,
+                            data:{}
+                        })
+                    }else{
+                        const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                        if (!(getUserRoleResponse.role=="teacher" || getUserRoleResponse.role=="creator")){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.INVALID_ROLE_ELIGIBLE,
+                                data:{}
+                            })  
+                        }else{
+                            const getTotalMarksResponse = await getTotalMarks({assignment_id})
+                            if (body.marks>getTotalMarksResponse.total_marks){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_MARKS,
+                                    data:{}
+                                })
+                            }else{
+                                const checkSubmissionFlagResponse = await checkSubmissionFlag({class_id,assignment_id,submission_id})
+                                if (checkSubmissionFlagResponse.flag==0){
+                                    res.status(400).send({
+                                        status:400,
+                                        error:true,
+                                        message:lang.INVALID_SUBMISSION_ID,
+                                        data:{}
+                                    })
+                                }else{
+                                    const markSubmissionResponse = await markSubmission({class_id,assignment_id,submission_id,user_id:user.user_id,marks:body.marks})
+                                    if (markSubmissionResponse){
+                                        res.send({
+                                            status:200,
+                                            error:false,
+                                            message:"Marks marked!!",
+                                            data:{}
+                                        })
+                                    }else{
+                                        res.status(501).send({
+                                            status:501,
+                                            error:true,
+                                            message:lang.SOMETHING_WENT_WRONG,
+                                            data:{}
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
 module.exports = classRouter

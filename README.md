@@ -1,7 +1,7 @@
 <h1>Classroom Management Backend</h1>
 <p>#OnMission #MakingRevolutionaryThing #CurrentProject1</p>
 <h2>Release Notes</h2>
-
+<p>Resource Link: https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing</p>
 1) SignUp (POST) (/auth/signup)
     - Allowed Fields : email, phone_no, password, first_name, last_name
     - Required Fields : All Allowed Fields
@@ -207,3 +207,14 @@
         - Previous submission would automitically deleted.
         - attachments should be files
     - Response : Basic + paths of attachements
+22) Mark Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submission/:submission_id)
+    - Params : class_id, assignment_id, submission_id
+    - Header : Bearer Token
+    - Allowed Fields : marks
+    - Required Fields : marks
+    - Conditions : 
+        - Classroom should exist.
+        - Submission should belong from its assignment .
+        - User should be teacher or creator of the classroom.
+        - Marks should less than total_marks of the assignment.
+        - Submission should exist.

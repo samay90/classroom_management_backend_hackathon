@@ -2,6 +2,7 @@
 <p>#OnMission #MakingRevolutionaryThing #CurrentProject1</p>
 <h2>Release Notes</h2>
 <p>Resource Link: https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing</p>
+
 1) SignUp (POST) (/auth/signup)
     - Allowed Fields : email, phone_no, password, first_name, last_name
     - Required Fields : All Allowed Fields
@@ -10,6 +11,7 @@
         - Email, Phone_no should have its basic format.
         - Password should contain atleast 1 special character.
     - Response : token
+
 2) Login (POST) (/auth/login)
     - Allowed Fields : authenticator, password
     - Required Fields : All Allowed Fields
@@ -19,6 +21,7 @@
         - Password should be valid
     - Response : token
     - Header : Bearer Token
+
 3) Update Profile (POST) (/user/profile/update)
     - Header : Bearer Token
     - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country
@@ -27,12 +30,14 @@
         - first_name, last_name, bio, city,state,country should be string format
         - dob should be a valid date of any format
         - Profile picture should be of type PNG, JPG, JPEG and size less than 1MB
+
 4) View Profile (GET) (/user/profile)
     - Header : Bearer Token
     - Allowed Fields : No fields
     - Conditions :
         - Normal User authentic conditions
     - Response : All the user data
+
 5) Create Classroom (POST) (/user/class/new)
     - Header : Bearer Token
     - Allowed Fields : class_name, class_description, join_password
@@ -40,6 +45,7 @@
     - Conditions :
         - All the fields should be of type string
     - Response : join_code and join_password
+
 6) Join Classroom (POST) (/user/class/join)
     - Header : Bearer Token
     - Allowed Fields : join_code, join_password
@@ -50,6 +56,7 @@
         - join_password should be valid
         - user should not have any role in that classroom
      - Response : Basic
+
 7) Update Classroom (POST) (/classroom/:class_id/edit)
     - Header : Bearer Token
     - Allowed Fields : class_name, class_desceription, join_password
@@ -60,6 +67,7 @@
         - class_id must be integral and class should exist
         - All the fields should be of type string
     - Response : Basic
+
 8) Manage Classroom (POST) (/classroom/:class_id/manage)
     - Allowed Fields : user_id, action_type, action (T OR S)
     - Required Fields : user_id,action_type (R or M)
@@ -70,6 +78,7 @@
         - Cannot modify himself
         - If action_type is M then action should provided
     - Response : Basic
+
 9) Add Resource (POST) (/classroom/:class_id/resource/new)
     - Allowed Fields : title, body, attachments
     - Required Fields : title
@@ -80,6 +89,7 @@
         - title should be less 50chars and body must be less than 200chars.
         - attachments is files
     - Response : Basic
+
 10) View Resource (GET) (/classroom/:class_id/resource/:resource_id)
     - Params : class_id, resource_id
     - Header : Bearer Token
@@ -88,6 +98,7 @@
         - Resource should belong for particular classroom.
         - Resource should not be deleted
     - Response : All the details of resource and attachemtns.
+
 11) Delete Resource (POST) (/classroom/:class_id/resource/:resource_id/delete)
     - Params : class_id, resource_id
     - Header : Bearer Token
@@ -96,6 +107,7 @@
         - Resource should belong for particular classroom.
         - Resource should not be deleted
     - Response : Basic
+
 12) Edit Resource (POST) (/classroom/:class_id/resource/:resource_id/edit)
     - Params : class_id, resource_id
     - Header : Bearer Token
@@ -108,6 +120,7 @@
         - delete_attachments should be array of attachment ids in stringified format
         - attachments should be files
     - Response : Basic
+
 13) Ask Query (POST) (/classroom/:class_id/resource/:resource_id/query/ask)
     - Params : class_id, resource_id
     - Header : Bearer Token
@@ -117,6 +130,7 @@
         - Resource should belong from same classroom
         - User should be student of that classroom
         - query_title should be less than 50chars and query_body should be less than 200chars
+
 14) Edit Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/edit)
     - Params : class_id, resource_id, query_id
     - Header : Bearer Token
@@ -127,6 +141,7 @@
         - Query should belong from same resource
         - User should be student of that classroom and query should belong to user
         - query_title should be less than 50chars and query_body should be less than 200chars
+
 15) Delete Query (DELETE) (/classroom/:class_id/resource/:resource_id/query/:query_id/delete)
     - Params : class_id, resource_id, query_id
     - Header : Bearer Token
@@ -135,6 +150,7 @@
         - Resource should belong from same classroom
         - User should be student of that classroom and query should belong to user
         - Query should belong from same resource
+
 16) Solve Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/solve)
     - Params : class_id, resource_id, query_id
     - Header : Bearer Token
@@ -145,6 +161,7 @@
         - Query should belong from same resource
         - solution should be less than 500chars
         - user should be creator or teacher of the classroom
+
 17) Mark Attendance (POST) (/classroom/:class_id/resource/:resource_id/attendance/mark)
     - Parmas : class_id, resource_id
     - Header : Bearer Token
@@ -157,6 +174,7 @@
         - user_id of the each user in the attendance must be the student of the classroom.
         - Date can be any valid format of the Javascript.
         - The older attendance of students provided in attendance will get deleted.
+
 18) Assign Assignment (POST) (/classroom/:class_id/assignments/new)
     - Parmas : class_id
     - Header : Bearer Token
@@ -169,6 +187,7 @@
         - title shoulld be less than 50chars and body should be less than 200chars.
         - total_marks should be an integer.
     - Response : Basic
+
 19) Edit Assignment (POST) (/classroom/:class_id/asssignment/:assignment_id/edit)
     - Params : class_id, assignment_id
     - Header : Bearer Token
@@ -183,6 +202,7 @@
         - delete_attachments should be array of attachment ids in stringified format
         - attachments should be files
     - Response : Basic
+
 20) Delete Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/delete)
     - Params : class_id, assignment_id
     - Header : Bearer Token
@@ -193,6 +213,8 @@
         - Assignment should exist and should belong from that classroom.
         - User should be creator or teacher of the class
     - Response : Basic
+
+
 21) Submit Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submit)
     - Params : class_id, assignment_id
     - Header : Bearer Token
@@ -207,6 +229,7 @@
         - Previous submission would automitically deleted.
         - attachments should be files
     - Response : Basic + paths of attachements
+
 22) Mark Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submission/:submission_id)
     - Params : class_id, assignment_id, submission_id
     - Header : Bearer Token

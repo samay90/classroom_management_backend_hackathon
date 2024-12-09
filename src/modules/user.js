@@ -167,4 +167,16 @@ const getClassJoinPassword = ({join_code}) =>{
         })
     })
 }
-module.exports = {verifyUser,getUserProfile,getClassJoinPassword,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}
+const getClassrooms = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q2 = `select c.class_id,c.class_name,c.class_description,con.role from classrooms as c,connections as con where  con.class_id=c.class_id and con.user_id=?;`;
+        db.query(q2,[user_id],(err2,result2)=>{
+            if (err2){
+                reject(err2)
+            }else{
+                resolve(result2)
+            }
+        })        
+    })
+}
+module.exports = {verifyUser,getClassrooms,getUserProfile,getClassJoinPassword,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}

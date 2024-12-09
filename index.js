@@ -11,6 +11,9 @@ app.use(expressFileUpload({
 app.use(express.static(__dirname+"/public"))
 app.use(express.json())
 app.use(bodyParser.urlencoded({extended:true}))
-app.use(cors())
+app.use(cors({origin:"*"}))
 app.use("/",router)
-app.listen(9921)
+app.get("/",(req,res)=>{
+    res.send("<h1>Welcome to CMS</h1>")
+})
+app.listen(9920,"192.168.0.107")

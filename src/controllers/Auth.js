@@ -45,7 +45,7 @@ authRouter.post("/signup",async (req,res)=>{
                 res.status(400).send({
                     status:400,
                     error:true,
-                    mesage:lang.INVALID_EMAIL,
+                    message:lang.INVALID_EMAIL,
                     data:{}
                 })
             }else{

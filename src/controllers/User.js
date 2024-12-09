@@ -2,7 +2,7 @@ const express = require("express")
 const userRouter = express.Router()
 const lang = require("../../lang/lang.json")
 const checker = require("../helpers/functions/checker")
-const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag, getClassJoinPassword, joinClass, userClassroomStatus } = require("../modules/user")
+const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag, getClassJoinPassword, joinClass, userClassroomStatus, getClassrooms } = require("../modules/user")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
@@ -313,6 +313,25 @@ userRouter.post("/class/join",async (req,res)=>{
                 }
             }
         }
+    }
+})
+userRouter.get("/classrooms",async (req,res)=>{
+    const user = req.user;
+    const getClassroomsResponse = await getClassrooms({user_id:user.user_id})
+    if (getClassroomsResponse){
+        res.send({
+            status:200,
+            error:false,
+            message:"",
+            data:getClassroomsResponse
+        })
+    }else{
+        res.status(501).send({
+            status:501,
+            error:true,
+            message:lang.SOMETHING_WENT_WRONG,
+            data:{}
+        })
     }
 })
 module.exports = userRouter

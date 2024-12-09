@@ -230,7 +230,7 @@
         - attachments should be files
     - Response : Basic + paths of attachements
 
-22) Mark Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submission/:submission_id)
+22) Mark Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submission/:submission_id
     - Params : class_id, assignment_id, submission_id
     - Header : Bearer Token
     - Allowed Fields : marks
@@ -241,3 +241,8 @@
         - User should be teacher or creator of the classroom.
         - Marks should less than total_marks of the assignment.
         - Submission should exist.
+
+23) Get User Classrooms (GET) (/classrooms)
+    - Header : Bearer Token
+    - Response : 
+        - Details for all the classrooms that user has joined

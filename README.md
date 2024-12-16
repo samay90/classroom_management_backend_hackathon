@@ -242,7 +242,14 @@
         - Marks should less than total_marks of the assignment.
         - Submission should exist.
 
-23) Get User Classrooms (GET) (/classrooms)
+23) Get User Classrooms (GET) (/user/classrooms)
     - Header : Bearer Token
     - Response : 
         - Details for all the classrooms that user has joined
+
+24) Get Classroom (GET) (/classroom/:class_id)
+    - Header : Bearer Token
+    - Conditions :
+        - User should be the member of the classroom
+    - Response : 
+        - All the data (resources and assignments) of the classrooms

@@ -31,6 +31,7 @@ const updateClassroom = ({
   class_name,
   class_description,
   join_password,
+  banner_id
 }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
@@ -39,6 +40,7 @@ const updateClassroom = ({
     if (class_description)
       fields.push(`class_description="${class_description}"`);
     if (join_password) fields.push(`join_password="${join_password}"`);
+    if (banner_id) fields.push(`banner_id=${banner_id}`);
     const q = `update classrooms set ${fields.join(
       ","
     )},updated_at=? where class_id=?;`;

@@ -59,10 +59,11 @@
 
 7) Update Classroom (POST) (/classroom/:class_id/edit)
     - Header : Bearer Token
-    - Allowed Fields : class_name, class_desceription, join_password
+    - Allowed Fields : class_name, class_desceription, join_password, banner_id
     - Required Fields : Any one of Allowed Fields
     - Params : class_id
     - Conditions :
+        - banner_id must be number
         - User should be creator of the class
         - class_id must be integral and class should exist
         - All the fields should be of type string

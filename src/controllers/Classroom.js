@@ -24,7 +24,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
         })
     }else{
         class_id=parseInt(class_id)
-        if (!(body.class_name || body.class_description || body.join_password)){
+        if (!(body.class_name || body.class_description || body.join_password || body.banner_id)){
             res.status(400).send({
                 status:400,
                 error:true,
@@ -32,7 +32,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
                 data:{}
             })
         }else{
-            if (!((typeof(body.class_name)=="string" || !body.class_name) && (typeof(body.class_description)=="string"|| !body.class_description) && (typeof(body.join_password)=="string")|| !body.join_password)){
+            if (!((typeof(body.class_name)=="string" || !body.class_name) && (typeof(body.class_description)=="string"|| !body.class_description) && (typeof(body.join_password)=="string")|| !body.join_password) ){
                 res.status(400).send({
                     status:400,
                     error:true,
@@ -40,52 +40,61 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
                     data:{}
                 })
             }else{
-                const lengthCheckerResponse = lengthChecker(body,rules)
-                if (lengthCheckerResponse.error){
+                if (!(typeof(body.banner_id)=="number"|| !body.banner_id)){
                     res.status(400).send({
                         status:400,
                         error:true,
-                        message:lengthCheckerResponse.message,
+                        message:lang.NUMBER_VALIES,
                         data:{}
                     })
                 }else{
-                    const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id:class_id})
-                    if (userClassroomStatusResponse.flag==0){
+                    const lengthCheckerResponse = lengthChecker(body,rules)
+                    if (lengthCheckerResponse.error){
                         res.status(400).send({
                             status:400,
                             error:true,
-                            message:lang.INVALID_CLASSROOM,
+                            message:lengthCheckerResponse.message,
                             data:{}
                         })
                     }else{
-                        const getUserRoleResponse = await getUserRole({class_id:class_id,user_id:user.user_id})
-                        if (getUserRoleResponse.role!=="creator"){
+                        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id:class_id})
+                        if (userClassroomStatusResponse.flag==0){
                             res.status(400).send({
                                 status:400,
                                 error:true,
-                                message:lang.INVALID_ROLE_ELIGIBLE,
+                                message:lang.INVALID_CLASSROOM,
                                 data:{}
                             })
                         }else{
-                            let hassPass = null
-                            if (body.join_password){
-                                hassPass=bcrypt.hashSync(body.join_password,2)
-                            }
-                            const updateClassroomResponse = await updateClassroom({class_id:class_id,class_name:body.class_name,class_description:body.class_description,join_password:hassPass})
-                            if (updateClassroomResponse){
-                                res.send({
-                                    status:200,
-                                    error:false,
-                                    message:"Classroom Updated!!",
+                            const getUserRoleResponse = await getUserRole({class_id:class_id,user_id:user.user_id})
+                            if (getUserRoleResponse.role!=="creator"){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_ROLE_ELIGIBLE,
                                     data:{}
                                 })
                             }else{
-                                res.status(501).send({
-                                    status:501,
-                                    error:true,
-                                    message:lang.SOMETHING_WENT_WRONG,
-                                    data:{}
-                                })
+                                let hassPass = null
+                                if (body.join_password){
+                                    hassPass=bcrypt.hashSync(body.join_password,2)
+                                }
+                                const updateClassroomResponse = await updateClassroom({class_id:class_id,class_name:body.class_name,class_description:body.class_description,join_password:hassPass,banner_id:body.banner_id})
+                                if (updateClassroomResponse){
+                                    res.send({
+                                        status:200,
+                                        error:false,
+                                        message:"Classroom Updated!!",
+                                        data:{}
+                                    })
+                                }else{
+                                    res.status(501).send({
+                                        status:501,
+                                        error:true,
+                                        message:lang.SOMETHING_WENT_WRONG,
+                                        data:{}
+                                    })
+                                }
                             }
                         }
                     }

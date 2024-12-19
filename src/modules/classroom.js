@@ -658,7 +658,7 @@ const getTotalMarks = ({ assignment_id }) => {
 };
 const getClassroomResources = ({ class_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select r.resource_id,r.title,r.body,r.class_id,r.user_id as created_by,u.first_name as creator_first_name,u.last_name as creator_last_name,r.created_at,r.updated_at,d.path as creator_profile_image from resources as r,users as u,documents as d where r.class_id=? and r.is_deleted=0 and r.user_id=u.user_id and u.user_id=d.user_id and d.doc_type='profile' and d.is_deleted=0 order by r.created_at;`;
+    const q = `select r.resource_id,r.title,r.body,r.class_id,r.user_id as created_by,u.first_name as creator_first_name,u.last_name as creator_last_name,r.created_at,r.updated_at,d.file_name as creator_profile_image from resources as r,users as u,documents as d where r.class_id=? and r.is_deleted=0 and r.user_id=u.user_id and u.user_id=d.user_id and d.doc_type='profile' and d.is_deleted=0 order by r.created_at;`;
     db.query(q, [class_id], (err, result) => {
       if (err) {
         reject(err);
@@ -670,7 +670,7 @@ const getClassroomResources = ({ class_id }) => {
 };
 const getClassroomAssignments = ({ class_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.total_marks,a.user_id as created_by,a.created_at,a.updated_at,u.first_name as creator_first_name,u.last_name as creator_last_name,d.path from assignments as a,users as u,documents as d where a.class_id=? and a.is_deleted=0 and a.user_id=u.user_id and u.user_id=d.user_id and d.doc_type='profile' and d.is_deleted=0 order by a.created_at;`;
+    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.total_marks,a.user_id as created_by,a.created_at,a.updated_at,u.first_name as creator_first_name,u.last_name as creator_last_name,d.file_name as creator_profile_image from assignments as a,users as u,documents as d where a.class_id=? and a.is_deleted=0 and a.user_id=u.user_id and u.user_id=d.user_id and d.doc_type='profile' and d.is_deleted=0 order by a.created_at;`;
     db.query(q, [class_id], (err, result) => {
       if (err) {
         reject(err);

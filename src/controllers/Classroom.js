@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -1511,6 +1511,64 @@ classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>
                                 data:{}
                             })
                         }
+                    }
+                }
+            }
+        }
+    }
+})
+classRouter.get('/:class_id/assignment/:assignment_id',async (req,res)=>{
+    const user = req.user
+    let {class_id,assignment_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            if (!parseInt(assignment_id)){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ASSIGNMENT_ID,
+                    data:{}
+                })
+            }else{
+                const checkAssignmentFlagResponse = await checkAssignmentFlag({class_id,assignment_id})
+                if (checkAssignmentFlagResponse.flag==0){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_ASSIGNMENT_ID,
+                        data:{}
+                    })
+                }else{
+                    const getAssignmentResponse = await getAssignment({user_id:user.user_id,assignment_id})
+                    if (getAssignmentResponse){
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Assignment fetched!!",
+                            data:getAssignmentResponse
+                        })
+                    }else{
+                        res.status(501).send({
+                            status:501,
+                            error:true,
+                            message:lang.SOMETHING_WENT_WRONG,
+                            data:{}
+                        })
                     }
                 }
             }

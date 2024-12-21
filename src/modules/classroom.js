@@ -146,7 +146,7 @@ const getResource = ({ resource_id }) => {
           } else {
             resolve({
               ...result[0],
-              attachements: result2,
+              attachments: result2,
             });
           }
         });

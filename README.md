@@ -254,3 +254,10 @@
         - User should be the member of the classroom
     - Response : 
         - All the data (resources and assignments) of the classrooms
+
+25) Get Assignemnt (GET) (/classroom/:class_id/assignment/:assignment_id)
+    - Header : Bearer Token
+    - Conditions:
+        - User should be the sutdent of the classroom
+    - Response : 
+        - All the data of the particular assignment

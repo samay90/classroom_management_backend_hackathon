@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -1841,5 +1841,54 @@ classRouter.get("/:class_id",async (req,res)=>{
             }
         }
     }
+})
+classRouter.get("/:class_id/resource/:resource_id/query",async (req,res)=>{
+    const {class_id,resource_id} = req.params
+    const user = req.user_id
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        if (!parseInt(resource_id)){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_RESOURCE_ID,
+                data:{}
+            })
+        }else{
+            const userClassroomStatusResponse = await userClassroomStatus({class_id,user_id:user.user_id})
+            if (userClassroomStatusResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_CLASSROOM,
+                    data:{}
+                })
+            }else{
+                const getUserQueryResponse = await getUserQuery({class_id,resource_id,user:user.user_id})
+                if (getUserQueryResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"",
+                        data:getUserQueryResponse
+                    })
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
+            }
+        }
+    }
+
 })
 module.exports = classRouter

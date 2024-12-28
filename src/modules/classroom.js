@@ -710,10 +710,23 @@ const getAssignment = ({ assignment_id, user_id }) => {
     });
   });
 };
+const getUserQuery = ({ class_id, resource_id ,user_id}) => {
+  return new Promise((resolve, reject) => {
+    const q = `select q.query_id,q.query_title,q.query_body,q.solution,q.solution_by,q.solved_at,q.created_at,q.updated_at,q.user_id,u.first_name as solver_first_name,u.last_name as solver_last_name,d.file_name as solver_profile_image from queries as q,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where q.class_id=? and q.resource_id=? and q.user_id=? and q.is_deleted=0 and q.user_id=u.user_id ORDER BY q.created_at desc;`;
+    db.query(q,(err,result)=>{
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    })
+  });
+};
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
   getClassroomResources,
+  getUserQuery,
   markSubmission,
   getAssignment,
   checkSubmissionFlag,

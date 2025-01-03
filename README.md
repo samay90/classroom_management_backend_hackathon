@@ -261,7 +261,7 @@
         - User should be the member of the classroom
     - Response : 
         - All the data of the particular assignment
-26) Get User query's (GET) (/classroom/:class_id/resource/:resource_id/query)
+26) Get User query's (GET) (/classroom/:class_id/resource/:resource_id/queries)
     - Header : Bearer Token
     - Conditions: 
         - User should be the member of the classroom

@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachement, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachement, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -502,7 +502,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
         }else{
             class_id = parseInt(class_id)
             resource_id = parseInt(resource_id)
-            const lengthCheckerResponse = await lengthChecker(body,rules)
+            const lengthCheckerResponse = lengthChecker(body,rules)
             if (lengthCheckerResponse.error){
                 res.status(400).send({
                     status:400,
@@ -564,7 +564,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                             const toDeleteattachments = getResourceAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
                                             const len = toDeleteattachments.length
                                             for (let i=0;i<len;i++){
-                                                await deleteResourceAttachement({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
+                                                await deleteResourceAttachment({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
                                             }
                                             deleteAttachmentsFlag = true
                                         }
@@ -575,7 +575,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                     deleteAttachmentsFlag = true
                                 }
                                 if (deleteAttachmentsFlag){
-                                    let addResourceAttachementFlag = false
+                                    let addResourceAttachmentFlag = false
                                     if (files && files.attachments){
                                         if (!Array.isArray(files.attachments)){
                                             files.attachments = [files.attachments]
@@ -586,13 +586,13 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                             files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
                                             await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                             if (i+1==len){
-                                                addResourceAttachementFlag=true
+                                                addResourceAttachmentFlag=true
                                             }
                                         }
                                     }else{
-                                        addResourceAttachementFlag = true
+                                        addResourceAttachmentFlag = true
                                     }
-                                    if (addResourceAttachementFlag){
+                                    if (addResourceAttachmentFlag){
                                         const updateResourceResponse = await updateResource({resource_id,title:body.title,body:body.body})
                                         if (updateResourceResponse){
                                             res.send({
@@ -1388,7 +1388,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                     const toDeleteattachments = getAssignmentsAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
                                                     const len = toDeleteattachments.length
                                                     for (let i=0;i<len;i++){
-                                                        await deleteAssignmenteAttachement({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
+                                                        await deleteAssignmenteAttachment({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
                                                     }
                                                     deleteAttachmentsFlag = true
                                                 }
@@ -1399,7 +1399,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                             deleteAttachmentsFlag = true
                                         }
                                         if (deleteAttachmentsFlag){
-                                            let addAssignementAttachementFlag = false
+                                            let addAssignementAttachmentFlag = false
                                             if (files && files.attachments){
                                                 if (!Array.isArray(files.attachments)){
                                                     files.attachments = [files.attachments]
@@ -1410,13 +1410,13 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                     files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
                                                     await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
                                                     if (i+1==len){
-                                                        addAssignementAttachementFlag=true
+                                                        addAssignementAttachmentFlag=true
                                                     }
                                                 }
                                             }else{
-                                                addAssignementAttachementFlag = true
+                                                addAssignementAttachmentFlag = true
                                             }
-                                            if (addAssignementAttachementFlag){
+                                            if (addAssignementAttachmentFlag){
                                                 let due_date_time = null
                                                 if (body.due_date_time){
                                                     due_date_time = new Date(body.due_date_time)
@@ -1842,9 +1842,9 @@ classRouter.get("/:class_id",async (req,res)=>{
         }
     }
 })
-classRouter.get("/:class_id/resource/:resource_id/query",async (req,res)=>{
+classRouter.get("/:class_id/resource/:resource_id/queries",async (req,res)=>{
     const {class_id,resource_id} = req.params
-    const user = req.user_id
+    const user = req.user
     if (!parseInt(class_id)){
         res.status(400).send({
             status:400,
@@ -1870,7 +1870,7 @@ classRouter.get("/:class_id/resource/:resource_id/query",async (req,res)=>{
                     data:{}
                 })
             }else{
-                const getUserQueryResponse = await getUserQuery({class_id,resource_id,user:user.user_id})
+                const getUserQueryResponse = await getUserQuery({class_id,resource_id,user_id:user.user_id})
                 if (getUserQueryResponse){
                     res.send({
                         status:200,

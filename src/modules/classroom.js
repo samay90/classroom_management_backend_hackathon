@@ -192,7 +192,7 @@ const getResourceAttachments = ({ resource_id }) => {
     });
   });
 };
-const deleteResourceAttachement = ({ cd_id, file_name, class_id }) => {
+const deleteResourceAttachment = ({ cd_id, file_name, class_id }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     const q = `update class_documents set is_deleted=1 where cd_id=?;`;
@@ -429,7 +429,7 @@ const getAssignmentAttachments = ({ assignment_id }) => {
     });
   });
 };
-const deleteAssignmenteAttachement = ({ cd_id, file_name, class_id }) => {
+const deleteAssignmenteAttachment = ({ cd_id, file_name, class_id }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     const q = `update class_documents set is_deleted=1 where cd_id=?;`;
@@ -491,11 +491,11 @@ const deleteAssignment = ({ assignment_id, class_id }) => {
       if (err) {
         reject(err);
       } else {
-        const attachements = await getAssignmentAttachments({ assignment_id });
-        for (var i = 0; i < attachements.length; i++) {
-          await deleteAssignmenteAttachement({
-            cd_id: attachements[i].cd_id,
-            file_name: attachements[i].file_name,
+        const attachments = await getAssignmentAttachments({ assignment_id });
+        for (var i = 0; i < attachments.length; i++) {
+          await deleteAssignmenteAttachment({
+            cd_id: attachments[i].cd_id,
+            file_name: attachments[i].file_name,
             class_id: class_id,
           });
         }
@@ -599,13 +599,13 @@ const deleteAssignmentSubmission = ({ class_id, assignment_id, user_id }) => {
               reject(err);
             } else {
               if (result2[0]) {
-                let attachements = await getSubmissionAttachment({
+                let attachments = await getSubmissionAttachment({
                   submission_id: result2[0].submission_id,
                 });
-                attachements = await JSON.parse(attachements.file_name);
-                for (var i = 0; i < attachements.length; i++) {
+                attachments = await JSON.parse(attachments.file_name);
+                for (var i = 0; i < attachments.length; i++) {
                   fs.unlinkSync(
-                    `./public/classrooms/${class_id}/assignments/submissions/${attachements[i]}`,
+                    `./public/classrooms/${class_id}/assignments/submissions/${attachments[i]}`,
                     (err) => {
                       console.log(err);
                     }
@@ -682,7 +682,7 @@ const getClassroomAssignments = ({ class_id }) => {
 };
 const getAssignment = ({ assignment_id, user_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.total_marks,a.user_id,u.first_name as creator_first_name,u.last_name as creator_last_name,u.user_id as created_by,d.file_name as creator_profile_image from assignments as a ,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.user_id=u.user_id and a.assignment_id=?;`;
+    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.created_at,a.updated_at,a.total_marks,a.user_id,u.first_name as creator_first_name,u.last_name as creator_last_name,u.user_id as created_by,d.file_name as creator_profile_image from assignments as a ,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.user_id=u.user_id and a.assignment_id=?;`;
     db.query(q, [assignment_id], (err, result) => {
       if (err) {
         reject(err);
@@ -699,7 +699,7 @@ const getAssignment = ({ assignment_id, user_id }) => {
               } else {
                 resolve({
                   ...result[0],
-                  attachements: result2,
+                  attachments: result2,
                   submissions: result3[0] ? {...result3[0],path:JSON.parse(result3[0].path),file_name:JSON.parse(result3[0].file_name)} : null,
                 });
               }
@@ -712,8 +712,11 @@ const getAssignment = ({ assignment_id, user_id }) => {
 };
 const getUserQuery = ({ class_id, resource_id ,user_id}) => {
   return new Promise((resolve, reject) => {
-    const q = `select q.query_id,q.query_title,q.query_body,q.solution,q.solution_by,q.solved_at,q.created_at,q.updated_at,q.user_id,u.first_name as solver_first_name,u.last_name as solver_last_name,d.file_name as solver_profile_image from queries as q,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where q.class_id=? and q.resource_id=? and q.user_id=? and q.is_deleted=0 and q.user_id=u.user_id ORDER BY q.created_at desc;`;
-    db.query(q,(err,result)=>{
+    const q = `select q.query_id,q.query_title,q.query_body,q.solution,q.solution_by,q.solved_at,q.created_at,q.updated_at,
+    q.user_id,u.first_name as solver_first_name,u.last_name as solver_last_name,d.file_name as solver_profile_image from queries 
+    as q LEFT JOIN users as u ON q.solution_by=u.user_id LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' 
+    where q.class_id=? and q.resource_id=? and q.user_id=? and q.is_deleted=0 ORDER BY q.created_at desc;`;
+    db.query(q, [class_id, resource_id, user_id],(err,result)=>{
       if (err) {
         reject(err);
       } else {
@@ -737,7 +740,7 @@ module.exports = {
   submitAssignment,
   deleteAssignment,
   updateAssignment,
-  deleteAssignmenteAttachement,
+  deleteAssignmenteAttachment,
   getAssignmentAttachments,
   checkAssignmentFlag,
   createAssignment,
@@ -751,7 +754,7 @@ module.exports = {
   checkQueryFlag,
   askQuery,
   updateResource,
-  deleteResourceAttachement,
+  deleteResourceAttachment,
   getResourceAttachments,
   getResource,
   removeUser,

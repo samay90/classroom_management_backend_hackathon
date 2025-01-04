@@ -725,6 +725,18 @@ const getUserQuery = ({ class_id, resource_id ,user_id}) => {
     })
   });
 };
+const getClassroomSensitive = ({ class_id }) => {
+  return new Promise((resolve, reject) => {
+    const q = `select class_name,class_id,class_description,join_code,banner_id,created_at,updated_at from classrooms where class_id=?;`;
+    db.query(q, [class_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result[0]);
+      }
+    });
+  });
+}
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
@@ -748,6 +760,7 @@ module.exports = {
   markAttendance,
   checkStudentsFlag,
   writeSolution,
+  getClassroomSensitive,
   checkQueryFlagUsingResourceId,
   deleteQuery,
   editQuery,

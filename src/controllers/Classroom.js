@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -785,7 +785,6 @@ classRouter.post("/:class_id/resource/:resource_id/query/:query_id/edit",async (
                                     })
                                 }else{
                                     const checkQueryFlagResponse = await checkQueryFlag({resource_id,user_id:user.user_id,query_id})
-                                    console.log(checkQueryFlagResponse)
                                     if (checkQueryFlagResponse.flag==0){
                                         res.status(400).send({
                                             status:400,
@@ -1637,7 +1636,6 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                         }else{
                             const getDueDateResponse = await getDueDate({assignment_id})
                             const currentTime = getTimeString()
-                            console.log(getDueDateResponse.due_date_time,currentTime)
                             if (parseInt(getDueDateResponse.due_date_time)<parseInt(currentTime)){
                                 res.status(400).send({
                                     status:400,
@@ -1890,5 +1888,54 @@ classRouter.get("/:class_id/resource/:resource_id/queries",async (req,res)=>{
         }
     }
 
+})
+classRouter.get("/:class_id/sensitive",async (req,res)=>{
+    const class_id = req.params.class_id
+    const user = req.user
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        const userClassroomStatusResponse = await userClassroomStatus({class_id,user_id:user.user_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            const userRoleResponse = await getUserRole({class_id,user_id:user.user_id})
+            if (userRoleResponse.role=="creator"){
+                const getClassroomSensitiveResponse = await getClassroomSensitive({class_id})
+                if (getClassroomSensitiveResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Classroom sensitive fetched!!",
+                        data:getClassroomSensitiveResponse
+                    })
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
+            }else{
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ROLE_ELIGIBLE,
+                    data:{}
+                })
+            }
+        }
+    }
 })
 module.exports = classRouter

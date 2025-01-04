@@ -59,7 +59,7 @@
 
 7) Update Classroom (POST) (/classroom/:class_id/edit)
     - Header : Bearer Token
-    - Allowed Fields : class_name, class_desceription, join_password, banner_id
+    - Allowed Fields : class_name, class_description, join_password, banner_id
     - Required Fields : Any one of Allowed Fields
     - Params : class_id
     - Conditions :
@@ -250,6 +250,7 @@
 
 24) Get Classroom (GET) (/classroom/:class_id)
     - Header : Bearer Token
+    - Params : class_id
     - Conditions :
         - User should be the member of the classroom
     - Response : 
@@ -257,13 +258,23 @@
 
 25) Get Assignemnt (GET) (/classroom/:class_id/assignment/:assignment_id)
     - Header : Bearer Token
+    - Params : class_id,assignment_id
     - Conditions:
         - User should be the member of the classroom
     - Response : 
         - All the data of the particular assignment
+
 26) Get User query's (GET) (/classroom/:class_id/resource/:resource_id/queries)
     - Header : Bearer Token
+    - Params : class_id,resource_id
     - Conditions: 
         - User should be the member of the classroom
     - Response : 
         - All the data of the particular assignment
+
+27) Get Classroom sensitive information (GET) (/classroom/:class_id/sensitive)
+    - Header : Bearer Token
+    - Params : class_id
+    - Conditions :
+        - User should be creator of the classroom
+    - Response : Info about the classroom

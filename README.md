@@ -58,7 +58,7 @@
 
 7) Update Classroom (POST) (/classroom/:class_id/edit)
     - Header : Bearer Token
-    - Allowed Fields : class_name, class_description, join_password, banner_id
+    - Allowed Fields : class_name, class_description, banner_id
     - Required Fields : Any one of Allowed Fields
     - Params : class_id
     - Conditions :

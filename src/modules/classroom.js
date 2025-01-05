@@ -30,7 +30,6 @@ const updateClassroom = ({
   class_id,
   class_name,
   class_description,
-  join_password,
   banner_id,
 }) => {
   return new Promise((resolve, reject) => {
@@ -39,7 +38,6 @@ const updateClassroom = ({
     if (class_name) fields.push(`class_name="${class_name}"`);
     if (class_description)
       fields.push(`class_description="${class_description}"`);
-    if (join_password) fields.push(`join_password="${join_password}"`);
     if (banner_id) fields.push(`banner_id=${banner_id}`);
     const q = `update classrooms set ${fields.join(
       ","

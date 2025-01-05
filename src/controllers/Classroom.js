@@ -24,7 +24,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
         })
     }else{
         class_id=parseInt(class_id)
-        if (!(body.class_name || body.class_description || body.join_password || body.banner_id)){
+        if (!(body.class_name || body.class_description || body.banner_id)){
             res.status(400).send({
                 status:400,
                 error:true,
@@ -32,7 +32,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
                 data:{}
             })
         }else{
-            if (!((typeof(body.class_name)=="string" || !body.class_name) && (typeof(body.class_description)=="string"|| !body.class_description) && (typeof(body.join_password)=="string")|| !body.join_password) ){
+            if (!((typeof(body.class_name)=="string" || !body.class_name) && (typeof(body.class_description)=="string"|| !body.class_description)) ){
                 res.status(400).send({
                     status:400,
                     error:true,
@@ -75,11 +75,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
                                     data:{}
                                 })
                             }else{
-                                let hassPass = null
-                                if (body.join_password){
-                                    hassPass=bcrypt.hashSync(body.join_password,2)
-                                }
-                                const updateClassroomResponse = await updateClassroom({class_id:class_id,class_name:body.class_name,class_description:body.class_description,join_password:hassPass,banner_id:body.banner_id})
+                                const updateClassroomResponse = await updateClassroom({class_id:class_id,class_name:body.class_name,class_description:body.class_description,banner_id:body.banner_id})
                                 if (updateClassroomResponse){
                                     res.send({
                                         status:200,

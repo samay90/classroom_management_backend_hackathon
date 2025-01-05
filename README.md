@@ -40,20 +40,19 @@
 
 5) Create Classroom (POST) (/user/class/new)
     - Header : Bearer Token
-    - Allowed Fields : class_name, class_description, join_password
+    - Allowed Fields : class_name, class_description
     - Required Fields : All allowed fields
     - Conditions :
         - All the fields should be of type string
-    - Response : join_code and join_password
+    - Response : join_code
 
 6) Join Classroom (POST) (/user/class/join)
     - Header : Bearer Token
-    - Allowed Fields : join_code, join_password
+    - Allowed Fields : join_code
     - Required Fields : All allowed Fields
     - Conditions :
         - All fields should be of type string
         - join_code should be valid
-        - join_password should be valid
         - user should not have any role in that classroom
      - Response : Basic
 

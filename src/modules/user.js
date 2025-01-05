@@ -115,21 +115,21 @@ const joinClass = ({user_id,class_id,role,currentTime = getTimeString()}) =>{
 }
 const checkJoinCodeFlag = ({join_code}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from classrooms where join_code=?;`;
+        const q = `select class_id from classrooms where join_code=?;`;
         db.query(q,[join_code],(err,result)=>{
             if (err){
                 reject(err)
             }else{
-                resolve(result[0])
+                resolve(result)
             }
         })
     })
 }
-const createClassroom = ({class_name,class_description,join_password,user_id,join_code}) =>{
+const createClassroom = ({class_name,class_description,user_id,join_code}) =>{
     return new Promise((resolve,reject)=>{
         const currentTime = getTimeString()
-        const q = `insert into classrooms (class_name,class_description,join_password,created_at,updated_at,is_deleted,join_code) values (?);`;
-        db.query(q,[[class_name,class_description,join_password,currentTime,currentTime,0,join_code]],async (err,result)=>{
+        const q = `insert into classrooms (class_name,class_description,created_at,updated_at,is_deleted,join_code) values (?);`;
+        db.query(q,[[class_name,class_description,currentTime,currentTime,0,join_code]],async (err,result)=>{
             if (err){
                 reject((err))
             }else{
@@ -155,18 +155,6 @@ const userClassroomStatus = ({user_id,class_id}) =>{
         })
     })
 }
-const getClassJoinPassword = ({join_code}) =>{
-    return new Promise((resolve,reject)=>{
-        const q = `select join_password,class_id from classrooms where join_code=?;`;
-        db.query(q,[join_code],(err,result)=>{
-            if (err){
-                reject(err)
-            }else{
-                resolve(result[0])
-            }
-        })
-    })
-}
 const getClassrooms = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
         const q2 = `select c.class_id,c.class_name,c.class_description,con.role,c.banner_id from classrooms as c,connections as con where  con.class_id=c.class_id and con.user_id=?;`;
@@ -179,4 +167,4 @@ const getClassrooms = ({user_id}) =>{
         })        
     })
 }
-module.exports = {verifyUser,getClassrooms,getUserProfile,getClassJoinPassword,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}
+module.exports = {verifyUser,getClassrooms,getUserProfile,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}

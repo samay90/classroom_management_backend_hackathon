@@ -193,7 +193,6 @@ userRouter.post("/class/new",async (req,res)=>{
                 })
             }else{
                 let joinCode = joinCodeGenerator()
-                console.log(joinCode)
                 while (true){
                     const checkJoinCodeFlagResponse = await checkJoinCodeFlag({join_code:joinCode})
                     if (checkJoinCodeFlagResponse.length==0){break}

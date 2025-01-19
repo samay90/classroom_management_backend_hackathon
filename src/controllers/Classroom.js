@@ -1178,7 +1178,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                 data:{}
             })
         }else{
-            const lengthCheckerResponse = await lengthChecker(body,rules)
+            const lengthCheckerResponse = lengthChecker(body,rules)
             if (lengthCheckerResponse.error){
                 res.status(400).send({
                     status:400,
@@ -1206,7 +1206,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                         })
                     }else{
                         const due_date_time = new Date(body.due_date_time)
-                        if (due_date_time=="Invalid Date"){
+                        if (due_date_time=="Invalid Date" || due_date_time<new Date()){
                             res.status(400).send({
                                 status:400,
                                 error:true,

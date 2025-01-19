@@ -65,7 +65,7 @@ authRouter.post("/signup",async (req,res)=>{
                             data:{}
                         })
                     }else{
-                        const checkUniqueFlagResponse = await checkUniqueFlag({email:body.email,password:body.password})
+                        const checkUniqueFlagResponse = await checkUniqueFlag({email:body.email,phone_no:body.phone_no})
                         if (checkUniqueFlagResponse.flag!==0){
                             res.status(401).send({
                                 status:401,

@@ -277,3 +277,9 @@
     - Conditions :
         - User should be creator of the classroom
     - Response : Info about the classroom
+28) Get Classmated of a Classroom (GET) (/classroom/:class_id/class)
+    - Header : Bearer Token
+    - Params : class_id
+    - Conditions :
+        - User should be part of the classroom
+    - Response : All the info of class.

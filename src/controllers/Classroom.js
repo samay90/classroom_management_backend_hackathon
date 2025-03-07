@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -1928,6 +1928,45 @@ classRouter.get("/:class_id/sensitive",async (req,res)=>{
                     status:400,
                     error:true,
                     message:lang.INVALID_ROLE_ELIGIBLE,
+                    data:{}
+                })
+            }
+        }
+    }
+})
+classRouter.get("/:class_id/class",async (req,res)=>{
+    const class_id = req.params.class_id
+    const user = req.user
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        const userClassroomStatusResponse = await userClassroomStatus({class_id,user_id:user.user_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            const getClassroomClassResponse = await getClassroomClass({class_id})
+            if (getClassroomClassResponse){
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Classroom class fetched!!",
+                    data:getClassroomClassResponse
+                })
+            }else{
+                res.status(501).send({
+                    status:501,
+                    error:true,
+                    message:lang.SOMETHING_WENT_WRONG,
                     data:{}
                 })
             }

@@ -698,7 +698,13 @@ const getAssignment = ({ assignment_id, user_id }) => {
                 resolve({
                   ...result[0],
                   attachments: result2,
-                  submissions: result3[0] ? {...result3[0],path:JSON.parse(result3[0].path),file_name:JSON.parse(result3[0].file_name)} : null,
+                  submissions: result3[0]
+                    ? {
+                        ...result3[0],
+                        path: JSON.parse(result3[0].path),
+                        file_name: JSON.parse(result3[0].file_name),
+                      }
+                    : null,
                 });
               }
             });
@@ -708,19 +714,19 @@ const getAssignment = ({ assignment_id, user_id }) => {
     });
   });
 };
-const getUserQuery = ({ class_id, resource_id ,user_id}) => {
+const getUserQuery = ({ class_id, resource_id, user_id }) => {
   return new Promise((resolve, reject) => {
     const q = `select q.query_id,q.query_title,q.query_body,q.solution,q.solution_by,q.solved_at,q.created_at,q.updated_at,
     q.user_id,u.first_name as solver_first_name,u.last_name as solver_last_name,d.file_name as solver_profile_image from queries 
     as q LEFT JOIN users as u ON q.solution_by=u.user_id LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' 
     where q.class_id=? and q.resource_id=? and q.user_id=? and q.is_deleted=0 ORDER BY q.created_at desc;`;
-    db.query(q, [class_id, resource_id, user_id],(err,result)=>{
+    db.query(q, [class_id, resource_id, user_id], (err, result) => {
       if (err) {
         reject(err);
       } else {
         resolve(result);
       }
-    })
+    });
   });
 };
 const getClassroomSensitive = ({ class_id }) => {
@@ -734,7 +740,21 @@ const getClassroomSensitive = ({ class_id }) => {
       }
     });
   });
-}
+};
+const getClassroomClass = ({ class_id }) => {
+  return new Promise((resolve, reject) => {
+    const q = `select c.user_id,c.role,c.updated_at,c.created_at,u.first_name,u.last_name,d.file_name from 
+    connections as c LEFT JOIN users as u ON u.user_id=c.user_id LEFT JOIN documents as d ON d.is_deleted=0 and u.user_id=d.user_id and d.doc_type='profile' 
+    where c.is_deleted=0 and c.class_id=?;`;
+    db.query(q, [class_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      } 
+    })
+  });
+};
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
@@ -776,4 +796,5 @@ module.exports = {
   addClassDocument,
   checkResourceFlag,
   deleteResource,
+  getClassroomClass
 };

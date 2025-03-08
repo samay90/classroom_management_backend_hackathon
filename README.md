@@ -277,9 +277,17 @@
     - Conditions :
         - User should be creator of the classroom
     - Response : Info about the classroom
-28) Get Classmated of a Classroom (GET) (/classroom/:class_id/class)
+28) Get Classmates of a Classroom (GET) (/classroom/:class_id/class)
     - Header : Bearer Token
     - Params : class_id
     - Conditions :
         - User should be part of the classroom
     - Response : All the info of class.
+29) Get Data of Particular user of classroom (GET) (/classroom/:class_id/class/:user_id)
+    - Header : Bearer Token
+    - Params : class_id, user_id
+    - Conditions :
+        - User should be part of the classroom
+        - requested user should also be the part of the classroom
+    - Response : 
+        - User's data with more information

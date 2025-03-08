@@ -743,7 +743,7 @@ const getClassroomSensitive = ({ class_id }) => {
 };
 const getClassroomClass = ({ class_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select c.user_id,c.role,c.updated_at,c.created_at,u.first_name,u.last_name,d.file_name from 
+    const q = `select c.user_id,c.role,c.updated_at,c.created_at,u.first_name,u.last_name,u.email,d.file_name from 
     connections as c LEFT JOIN users as u ON u.user_id=c.user_id LEFT JOIN documents as d ON d.is_deleted=0 and u.user_id=d.user_id and d.doc_type='profile' 
     where c.is_deleted=0 and c.class_id=?;`;
     db.query(q, [class_id], (err, result) => {

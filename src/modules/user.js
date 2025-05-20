@@ -160,10 +160,10 @@ const getClassrooms = ({user_id}) =>{
         const q2 = `select c.class_id,c.class_name,c.class_description,c.created_at,c.updated_at,
         con.role,c.banner_id,d.file_name as creator_profile_image,cu.user_id as creator_id,cu.first_name as creator_first_name
         ,cu.last_name as creator_last_name  from classrooms as c,connections as con 
-        LEFT JOIN connections as cre ON cre.role="creator" 
+        LEFT JOIN connections as cre ON cre.role="creator"
         LEFT JOIN documents as d ON d.is_deleted=0 and d.doc_type='profile' and d.user_id=cre.user_id
         LEFT JOIN users as cu ON cu.user_id=cre.user_id 
-        where con.class_id=c.class_id and con.user_id=? and c.class_id=cre.class_id;`;
+        where con.class_id=c.class_id and con.user_id=? and c.class_id=cre.class_id and con.is_deleted=0;`;
         db.query(q2,[user_id],(err2,result2)=>{
             if (err2){
                 reject(err2)

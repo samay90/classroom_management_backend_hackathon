@@ -764,6 +764,37 @@ const getUserClassProfile = ({ class_id, user_id }) => {
     });
   });
 }
+const getAssignmentSubmissions = ({class_id,assignment_id }) => {
+  return new Promise((resolve, reject) => {
+    const q = `
+      SELECT 
+          s.submission_id, s.user_id, s.marks, s.created_at, s.file_name,
+          u.first_name, u.last_name, u.email, u.phone_no,
+          (
+              SELECT d.file_name 
+              FROM documents d 
+              WHERE d.user_id = c.user_id AND d.doc_type = 'profile' 
+              LIMIT 1
+          ) AS profile_image
+      FROM 
+          connections c
+      LEFT JOIN 
+          submissions s ON s.user_id = c.user_id AND s.assignment_id = ${assignment_id} AND s.is_deleted = 0
+      LEFT JOIN 
+          users u ON u.user_id = c.user_id
+      WHERE 
+          c.role = 'student' AND c.class_id = ${class_id} AND c.is_deleted = 0;
+
+    `;
+    db.query(q, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
@@ -806,5 +837,6 @@ module.exports = {
   addClassDocument,
   checkResourceFlag,
   deleteResource,
-  getClassroomClass
+  getClassroomClass,
+  getAssignmentSubmissions
 };

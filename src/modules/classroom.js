@@ -272,13 +272,8 @@ const checkQueryFlag = ({ query_id, resource_id, user_id }) => {
 const editQuery = ({ query_id, query_title, query_body }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
-    var fields = [];
-    if (query_title) fields.push(`query_title="${query_title}"`);
-    if (query_body) fields.push(`query_body="${query_body}"`);
-    const q = `update queries set ${fields.join(
-      ","
-    )},updated_at=? where query_id=?;`;
-    db.query(q, [currentTime, query_id], (err, result) => {
+    const q = `update queries set query_title=?,query_body=?,updated_at=? where query_id=?;`;
+    db.query(q, [query_title, query_body, currentTime, query_id], (err, result) => {
       if (err) {
         reject(err);
       } else {

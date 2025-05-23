@@ -291,7 +291,7 @@ const deleteQuery = ({ query_id }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     const q = `update queries set is_deleted=1,updated_at=? where query_id=?;`;
-    db.query(q, [query_id, currentTime], (err, result) => {
+    db.query(q, [currentTime,query_id], (err, result) => {
       if (err) {
         reject(err);
       } else {

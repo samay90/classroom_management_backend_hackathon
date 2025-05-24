@@ -291,3 +291,13 @@
         - requested user should also be the part of the classroom
     - Response : 
         - User's data with more information
+
+30) Get Submissions (GET) (/classroom/:class_id/assignment/:assignment_id/submissions)
+    - Header : Bearer Token
+    - Params : class_id,assignment_id
+    - Conditions : 
+        - Classroom should exist.
+        - Submission should belong from its assignment .
+        - User should be teacher or creator of the classroom.
+    - Response :
+        - All users submission

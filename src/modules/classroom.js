@@ -768,12 +768,12 @@ const getAssignmentSubmissions = ({class_id,assignment_id }) => {
   return new Promise((resolve, reject) => {
     const q = `
       SELECT 
-          s.submission_id, s.user_id, s.marks, s.created_at, s.file_name,
+          s.submission_id, s.user_id, s.marks, s.created_at, s.file_name as submission,
           u.first_name, u.last_name, u.email, u.phone_no,
           (
               SELECT d.file_name 
               FROM documents d 
-              WHERE d.user_id = c.user_id AND d.doc_type = 'profile' 
+              WHERE d.user_id = c.user_id AND d.doc_type = 'profile' and d.is_deleted = 0
               LIMIT 1
           ) AS profile_image
       FROM 

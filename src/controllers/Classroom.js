@@ -11,6 +11,7 @@ const isDictionary = require("../helpers/functions/isDictionary.js")
 const fs = require('fs');
 const { parse } = require("path")
 const { isNumber } = require("util")
+const path = require("path")
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -289,7 +290,7 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                                     }   
                                     const len = files.attachments.length
                                     for (let i=0;i<len;i++){	
-                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
                                         files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
                                         await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                         if (i+1==len){
@@ -578,7 +579,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                         }   
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
-                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
                                             files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
                                             await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
                                             if (i+1==len){
@@ -1231,7 +1232,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                         }   
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
-                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
                                             files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
                                             await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
                                             if (i+1==len){
@@ -1401,7 +1402,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                 }   
                                                 const len = files.attachments.length
                                                 for (let i=0;i<len;i++){	
-                                                    const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                                    const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name);
                                                     files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
                                                     await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
                                                     if (i+1==len){
@@ -1654,7 +1655,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                     let paths = []
                                     let file_names =[]
                                     for (let i=0;i<len;i++){	
-                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+"."+files.attachments[i].mimetype.split("/")[1]
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
                                         files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/submissions/${fileName}`)
                                         paths.push("http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/submissions/"+fileName)
                                         file_names.push(fileName)

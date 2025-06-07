@@ -7,7 +7,7 @@ const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
 const fs = require("fs")
-const bcrypt = require("bcrypt")
+const path = require('path');
 const joinCodeGenerator = require("../helpers/functions/codeGenerator")
 
 userRouter.post("/profile/update",async (req,res)=>{
@@ -73,7 +73,7 @@ userRouter.post("/profile/update",async (req,res)=>{
                         if (err){}
                     })
                 }
-                const fileName = getTimeString()+"q"+user.user_id.toString()+"0."+files.profile.mimetype.split("/")[1]
+                const fileName = getTimeString()+"q"+user.user_id.toString()+"0"+path.extname(req.files.profile.name)
                 const domain = "http://"+req.get("host")
                 files.profile.mv(__dirname+"/../../public/profile/"+fileName,async (err)=>{
                         const addProfileImageResponse = await addProfileImage({user_id:user.user_id,path:domain+"/profile/"+fileName,file_name:fileName})

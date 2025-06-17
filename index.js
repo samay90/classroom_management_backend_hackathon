@@ -16,7 +16,7 @@ app.use("/",router)
 app.get("/",(req,res)=>{
     res.send("<h1>Welcome to CMS</h1>")
 })
-app.listen(9920,"192.168.0.102")
+app.listen(9920,"192.168.0.106")
 
 // Home: 192.168.0.107
 // My Mobile : 192.168.150.135

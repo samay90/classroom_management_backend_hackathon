@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "286701720547",
+    "project_id": "spam-blocker-v1",
+    "storage_bucket": "spam-blocker-v1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286701720547:android:fae220c6716af36a0d86d6",
+        "android_client_info": {
+          "package_name": "com.example.spam_blocker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbcPu71Ta4odnD-eIBuGj7FrRJvH3xVDg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

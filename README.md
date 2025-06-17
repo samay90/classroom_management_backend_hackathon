@@ -151,6 +151,7 @@
         - User should be student of that classroom and query should belong to user
         - Query should belong from same resource
 
+<mark>
 16) Solve Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/solve)
     - Params : class_id, resource_id, query_id
     - Header : Bearer Token
@@ -161,7 +162,8 @@
         - Query should belong from same resource
         - solution should be less than 500chars
         - user should be creator or teacher of the classroom
-
+</mark>
+<mark>
 17) Mark Attendance (POST) (/classroom/:class_id/resource/:resource_id/attendance/mark)
     - Parmas : class_id, resource_id
     - Header : Bearer Token
@@ -174,7 +176,7 @@
         - user_id of the each user in the attendance must be the student of the classroom.
         - Date can be any valid format of the Javascript.
         - The older attendance of students provided in attendance will get deleted.
-
+</mark>
 18) Assign Assignment (POST) (/classroom/:class_id/assignments/new)
     - Parmas : class_id
     - Header : Bearer Token
@@ -262,7 +264,7 @@
         - User should be the member of the classroom
     - Response : 
         - All the data of the particular assignment
-
+<mark>
 26) Get User query's (GET) (/classroom/:class_id/resource/:resource_id/queries)
     - Header : Bearer Token
     - Params : class_id,resource_id
@@ -270,7 +272,7 @@
         - User should be the member of the classroom
     - Response : 
         - All the data of the particular assignment
-
+</mark>
 27) Get Classroom sensitive information (GET) (/classroom/:class_id/sensitive)
     - Header : Bearer Token
     - Params : class_id

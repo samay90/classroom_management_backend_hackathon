@@ -345,15 +345,15 @@ const deleteOldAttendance = ({ resource_id, class_id, user_ids }) => {
     });
   });
 };
-const markAttendance = ({ resource_id, class_id, attendance, attend_date }) => {
+const markAttendance = ({ resource_id, class_id, attendance }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
-    const q = `insert into attendance (resource_id,class_id,user_id,has_attended,attend_date,is_deleted,created_at,updated_at) values ${Object.keys(
+    const q = `insert into attendance (resource_id,class_id,user_id,has_attended,is_deleted,created_at,updated_at) values ${Object.keys(
       attendance
     )
       .map(
         (i) =>
-          `(${resource_id},${class_id},${i},${attendance[i]},${attend_date},0,${currentTime},${currentTime})`
+          `(${resource_id},${class_id},${i},${attendance[i]},0,${currentTime},${currentTime})`
       )
       .join(",")};`;
     db.query(q, (err, result) => {

@@ -1019,7 +1019,7 @@ classRouter.post("/:class_id/resource/:resource_id/query/:query_id/solve",async 
 classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,res)=>{
     const user = req.user
     let {class_id,resource_id} = req.params
-    const {attendance,date} = req.body
+    const {attendance} = req.body
     if (!parseInt(class_id)){
         res.status(400).send({
             status:400,
@@ -1036,7 +1036,7 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                 data:{}
             })
         }else{
-            const checkerResponse = checker({attendance,date},["attendance","date"])
+            const checkerResponse = checker({attendance},["attendance"])
             if (checkerResponse.error){
                 res.status(400).send({
                     status:400,
@@ -1082,16 +1082,7 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                                     data:{}
                                 })
                             }else{
-                                const attend_date = new Date(date)
-                                if (attend_date=="Invalid Date"){
-                                    res.status(400).send({
-                                        status:400,
-                                        error:true,
-                                        message:lang.INVALID_DATE,
-                                        data:{}
-                                    })
-                                }else{
-                                    const user_ids = Object.keys(attendance)
+                                const user_ids = Object.keys(attendance)
                                     if (user_ids.length==0){
                                         res.status(400).send({
                                             status:400,
@@ -1120,7 +1111,7 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                                             }else{
                                                 const deleteOldAttendanceResponse = await deleteOldAttendance({resource_id,class_id,user_ids})
                                                 if (deleteOldAttendanceResponse){
-                                                    const markAttendanceResponse = await markAttendance({resource_id,class_id,attendance,attend_date:attend_date.getTime().toString()})
+                                                    const markAttendanceResponse = await markAttendance({resource_id,class_id,attendance})
                                                     if (markAttendanceResponse){
                                                         res.send({
                                                             status:200,
@@ -1147,7 +1138,6 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                                             }
                                         }
                                     }
-                                }
                             }
                         }
                     }

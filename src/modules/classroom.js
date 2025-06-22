@@ -795,11 +795,44 @@ const getAssignmentSubmissions = ({class_id,assignment_id }) => {
     });
   });
 }
+const getResourceAttendances = ({ class_id, resource_id }) => {
+  return new Promise((resolve, reject) => {
+    const q = `SELECT 
+    u.user_id,
+    u.first_name,
+    u.last_name,
+    u.email,
+    d.file_name,
+    COALESCE(a.has_attended, -1) AS has_attended
+FROM appointment_booking.connections c
+JOIN appointment_booking.users u
+    ON c.user_id = u.user_id
+LEFT JOIN appointment_booking.documents d
+    ON u.user_id = d.user_id AND d.is_deleted = 0
+LEFT JOIN appointment_booking.attendance a
+    ON u.user_id = a.user_id
+    AND a.class_id = c.class_id
+    AND a.resource_id = ?
+    AND a.is_deleted = 0
+WHERE c.class_id = ?
+    AND c.role = 'student'
+    AND c.is_deleted = 0
+    AND u.is_deleted = 0;`;
+    db.query(q, [resource_id, class_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
   getClassroomResources,
   getUserQuery,
+  getResourceAttendances,
   markSubmission,
   getAssignment,
   checkSubmissionFlag,

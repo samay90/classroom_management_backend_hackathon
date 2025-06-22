@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -2070,6 +2070,56 @@ classRouter.get("/:class_id/assignment/:assignment_id/submissions",async (req,re
                     message:lang.INVALID_ROLE_ELIGIBLE,
                     data:{}
                 })
+            }
+        }
+    }
+})
+classRouter.get("/:class_id/resource/:resource_id/attendances",async (req,res)=>{
+    const class_id = req.params.class_id
+    const resource_id = req.params.resource_id
+    const user = req.user
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        const userClassroomStatusResponse = await userClassroomStatus({class_id,user_id:user.user_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            const checkResourceFlagResponse = await checkResourceFlag({class_id,resource_id})
+            if (checkResourceFlagResponse.flag==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_RESOURCE,
+                    data:{}
+                })
+            }else{
+                const getResourceAttendancesResponse = await getResourceAttendances({class_id,resource_id})
+                if (getResourceAttendancesResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Resource attendances fetched!!",
+                        data:getResourceAttendancesResponse
+                    })
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
             }
         }
     }

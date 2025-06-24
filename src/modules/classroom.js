@@ -130,10 +130,27 @@ const checkResourceFlag = ({ class_id, resource_id }) => {
     });
   });
 };
-const getResource = ({ resource_id }) => {
+const getResource = ({ resource_id,user_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select r.*,u.first_name as creator_first_name,u.last_name as creator_last_name,u.user_id as created_by,d.file_name as creator_profile_image from resources as r ,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where r.resource_id=? and r.user_id=u.user_id and r.is_deleted=0;`;
-    db.query(q, [resource_id], (err, result) => {
+    const q = `
+      SELECT r.*,
+       u.first_name as creator_first_name,
+       u.last_name as creator_last_name,
+       u.user_id as created_by,
+       d.file_name as creator_profile_image,
+       COALESCE(a.has_attended, -1) as has_attended
+FROM resources as r 
+JOIN users as u ON r.user_id = u.user_id
+LEFT JOIN documents as d ON u.user_id = d.user_id 
+                         AND d.is_deleted = 0 
+                         AND d.doc_type = 'profile'
+LEFT JOIN attendance as a ON r.resource_id = a.resource_id 
+                         AND a.user_id =?
+                         AND a.is_deleted = 0
+WHERE r.resource_id = ? 
+  AND r.is_deleted = 0;
+    `;
+    db.query(q, [user_id,resource_id], (err, result) => {
       if (err) {
         reject(err);
       } else {

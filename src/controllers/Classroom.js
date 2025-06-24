@@ -369,7 +369,7 @@ classRouter.get("/:class_id/resource/:resource_id",async (req,res)=>{
                         data:{}
                     })
                 }else{
-                    const getResourceResponse = await getResource({resource_id})
+                    const getResourceResponse = await getResource({resource_id,user_id:user.user_id})
                     if (getResourceResponse){
                         res.send({
                             status:200,

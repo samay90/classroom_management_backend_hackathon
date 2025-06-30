@@ -1,5 +1,4 @@
 <h1>Classroom Management Backend</h1>
-<p>#OnMission #MakingRevolutionaryThing #CurrentProject1</p>
 <h2>Release Notes</h2>
 <p>Resource Link: https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing</p>
 

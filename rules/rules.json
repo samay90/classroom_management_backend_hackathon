@@ -12,5 +12,6 @@
     "title":50,
     "body":500,
     "query_title":50,
-    "query_body":200
+    "query_body":200,
+    "solution":500
 }

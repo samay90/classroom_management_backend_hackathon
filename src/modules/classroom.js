@@ -130,7 +130,7 @@ const checkResourceFlag = ({ class_id, resource_id }) => {
     });
   });
 };
-const getResource = ({ resource_id,user_id }) => {
+const getResource = ({ resource_id, user_id }) => {
   return new Promise((resolve, reject) => {
     const q = `
       SELECT r.*,
@@ -150,7 +150,7 @@ LEFT JOIN attendance as a ON r.resource_id = a.resource_id
 WHERE r.resource_id = ? 
   AND r.is_deleted = 0;
     `;
-    db.query(q, [user_id,resource_id], (err, result) => {
+    db.query(q, [user_id, resource_id], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -290,20 +290,24 @@ const editQuery = ({ query_id, query_title, query_body }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     const q = `update queries set query_title=?,query_body=?,updated_at=? where query_id=?;`;
-    db.query(q, [query_title, query_body, currentTime, query_id], (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
+    db.query(
+      q,
+      [query_title, query_body, currentTime, query_id],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
-    });
+    );
   });
 };
 const deleteQuery = ({ query_id }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     const q = `update queries set is_deleted=1,updated_at=? where query_id=?;`;
-    db.query(q, [currentTime,query_id], (err, result) => {
+    db.query(q, [currentTime, query_id], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -763,8 +767,8 @@ const getClassroomClass = ({ class_id }) => {
         reject(err);
       } else {
         resolve(result);
-      } 
-    })
+      }
+    });
   });
 };
 const getUserClassProfile = ({ class_id, user_id }) => {
@@ -776,12 +780,12 @@ const getUserClassProfile = ({ class_id, user_id }) => {
       if (err) {
         reject(err);
       } else {
-        resolve(result[0]??null);
+        resolve(result[0] ?? null);
       }
     });
   });
-}
-const getAssignmentSubmissions = ({class_id,assignment_id }) => {
+};
+const getAssignmentSubmissions = ({ class_id, assignment_id }) => {
   return new Promise((resolve, reject) => {
     const q = `
       SELECT 
@@ -811,7 +815,7 @@ const getAssignmentSubmissions = ({class_id,assignment_id }) => {
       }
     });
   });
-}
+};
 const getResourceAttendances = ({ class_id, resource_id }) => {
   return new Promise((resolve, reject) => {
     const q = `SELECT 
@@ -843,11 +847,46 @@ WHERE c.class_id = ?
       }
     });
   });
-}
+};
+const getResourceQueries = ({ class_id, resource_id }) => {
+  return new Promise((resolve, reject) => {
+    const q = `
+      SELECT q.*,
+       u.first_name as user_first_name,
+       u.last_name as user_last_name,
+       u.email as user_email,
+       d.file_name as user_profile_image,
+       solver.first_name as solver_first_name,
+       solver.last_name as solver_last_name,
+       solver.email as solver_email,
+       solver_doc.file_name as solver_profile_image
+FROM queries as q
+LEFT JOIN users as u ON q.user_id = u.user_id AND u.is_deleted = 0
+LEFT JOIN documents as d ON u.user_id = d.user_id 
+                        AND d.is_deleted = 0 
+                        AND d.doc_type = 'profile'
+LEFT JOIN users as solver ON q.solution_by = solver.user_id AND solver.is_deleted = 0
+LEFT JOIN documents as solver_doc ON solver.user_id = solver_doc.user_id 
+                                 AND solver_doc.is_deleted = 0 
+                                 AND solver_doc.doc_type = 'profile'
+WHERE q.class_id = ? 
+  AND q.resource_id = ? 
+  AND q.is_deleted = 0;
+    `;
+    db.query(q, [class_id, resource_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
   getClassroomResources,
+  getResourceQueries,
   getUserQuery,
   getResourceAttendances,
   markSubmission,
@@ -888,5 +927,5 @@ module.exports = {
   checkResourceFlag,
   deleteResource,
   getClassroomClass,
-  getAssignmentSubmissions
+  getAssignmentSubmissions,
 };

@@ -11,7 +11,7 @@ const delay = (req,res,next) =>{
     },[1000])
 }
 
-router.use("/auth",delay,authRouter)
-router.use("/user",delay,userVerifier,userRouter)
-router.use("/classroom",delay,userVerifier,classRouter)
+router.use("/auth",authRouter)
+router.use("/user",userVerifier,userRouter)
+router.use("/classroom",userVerifier,classRouter)
 module.exports = router

@@ -13,12 +13,12 @@ const verifyUser = ({user_id}) =>{
         })
     })
 }
-const addProfileImage = ({user_id,path,file_name}) =>{
+const addProfileImage = ({user_id,path,url}) =>{
     return new Promise((resolve,reject)=>{
         const q2 = `update documents set is_deleted=1 where user_id=? and is_deleted=0 and doc_type="profile";`;
         db.query(q2,[user_id],(err2,result2)=>{
-            const q = `insert into documents (doc_type,path,file_name,is_deleted,user_id) values (?);`;
-            db.query(q,[["profile",path,file_name,0,user_id]],(err,result)=>{
+            const q = `insert into documents (doc_type,path,url,is_deleted,user_id) values (?);`;
+            db.query(q,[["profile",path,url,0,user_id]],(err,result)=>{
                 if (err){
                     reject(err)
                 }else{
@@ -54,13 +54,13 @@ const updateUserInfo = ({user_id,first_name,last_name,dob,bio,city,state,country
 }
 const getOldProfileImage = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select file_name,path from documents where user_id=? and is_deleted=0 and doc_type='profile';`;
+        const q = `select path from documents where user_id=? and is_deleted=0 and doc_type='profile';`;
         db.query(q,[user_id],(err,result)=>{
             if (err){                
                 reject(err)
             }else{                
                 if (result.length==0){
-                    resolve({path:null,file_name:null})
+                    resolve({path:null})
                 }else{
                     resolve(result[0])
                 }
@@ -158,7 +158,7 @@ const userClassroomStatus = ({user_id,class_id}) =>{
 const getClassrooms = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
         const q2 = `select c.class_id,c.class_name,c.class_description,c.created_at,c.updated_at,
-        con.role,c.banner_id,d.file_name as creator_profile_image,cu.user_id as creator_id,cu.first_name as creator_first_name
+        con.role,c.banner_id,d.url as creator_profile_image,cu.user_id as creator_id,cu.first_name as creator_first_name
         ,cu.last_name as creator_last_name  from classrooms as c,connections as con 
         LEFT JOIN connections as cre ON cre.role="creator"
         LEFT JOIN documents as d ON d.is_deleted=0 and d.doc_type='profile' and d.user_id=cre.user_id
@@ -173,4 +173,20 @@ const getClassrooms = ({user_id}) =>{
         })        
     })
 }
-module.exports = {verifyUser,getClassrooms,getUserProfile,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}
+const profileImageUrl = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select url from documents where user_id=? and is_deleted=0 and doc_type='profile';`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                if (result.length==0){
+                    resolve({path:null})
+                }else{
+                    resolve(result[0])
+                }
+            }
+        })
+    })
+}
+module.exports = {verifyUser,getClassrooms,profileImageUrl,getUserProfile,userClassroomStatus,checkUserDetails,checkJoinCodeFlag,getOldProfileImage,joinClass,createClassroom,updateUserInfo,addProfileImage}

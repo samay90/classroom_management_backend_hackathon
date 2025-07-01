@@ -4,6 +4,7 @@ const cors = require("cors")
 const expressFileUpload = require("express-fileupload")
 const bodyParser = require("body-parser")
 const router = require("./src/routes/route")
+const uploadFile = require("./src/helpers/firebase/file")
 
 app.use(expressFileUpload({
     createParentPath:true
@@ -16,8 +17,8 @@ app.use("/",router)
 app.get("/",(req,res)=>{
     res.send("<h1>Welcome to CMS</h1>")
 })
-app.listen(9920,"192.168.0.106")
+app.listen(9920,"0.0.0.0")
 
-// Home: 192.168.0.107
+// Home: 192.168.0.106
 // My Mobile : 192.168.150.135
 // IIT GOA : 10.196.37.139

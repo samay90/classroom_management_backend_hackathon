@@ -2,14 +2,14 @@ const express = require("express")
 const userRouter = express.Router()
 const lang = require("../../lang/lang.json")
 const checker = require("../helpers/functions/checker")
-const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag, joinClass, userClassroomStatus, getClassrooms } = require("../modules/user")
+const { addProfileImage, updateUserInfo, getOldProfileImage, getUserProfile, createClassroom, checkJoinCodeFlag, joinClass, userClassroomStatus, getClassrooms, profileImageUrl } = require("../modules/user")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const { getTimeString } = require("../helpers/functions/timeToWordDate")
 const fs = require("fs")
 const path = require('path');
 const joinCodeGenerator = require("../helpers/functions/codeGenerator")
-
+const {uploadFile,deleteFile} = require("../helpers/firebase/file")
 userRouter.post("/profile/update",async (req,res)=>{
     const body = req.body;
     const user = req.user;
@@ -68,21 +68,17 @@ userRouter.post("/profile/update",async (req,res)=>{
         if (files && files.profile){
             return new Promise(async(resolve,reject)=>{
                 const getOldProfileImageResponse =await getOldProfileImage({user_id:user.user_id})
-                if (getOldProfileImageResponse.file_name){
-                    fs.unlinkSync(__dirname+"/../../public/profile/"+getOldProfileImageResponse.file_name,(err)=>{
-                        if (err){}
-                    })
+                if (getOldProfileImageResponse.path){
+                    await deleteFile(getOldProfileImageResponse.path)
                 }
                 const fileName = getTimeString()+"q"+user.user_id.toString()+"0"+path.extname(req.files.profile.name)
-                const domain = "http://"+req.get("host")
-                files.profile.mv(__dirname+"/../../public/profile/"+fileName,async (err)=>{
-                        const addProfileImageResponse = await addProfileImage({user_id:user.user_id,path:domain+"/profile/"+fileName,file_name:fileName})
-                        if (addProfileImageResponse){
-                            resolve({error:false})
-                        }else{
-                            reject(err)
-                        }
-                })
+                const url = await uploadFile(files.profile,`profile/${fileName}`)
+                const addProfileImageResponse = await addProfileImage({user_id:user.user_id,path:`profile/${fileName}`,url:url})
+                if (addProfileImageResponse){
+                    resolve(true)
+                }else{
+                    reject(false)
+                }
             })
         }else{
             return true
@@ -158,7 +154,7 @@ userRouter.post("/profile/update",async (req,res)=>{
 userRouter.get("/profile",async (req,res)=>{
     const user = req.user
     const getUserProfileResponse = await getUserProfile({user_id:user.user_id})
-    const getOldProfileImageResponse = await getOldProfileImage({user_id:user.user_id})
+    const getOldProfileImageResponse = await profileImageUrl({user_id:user.user_id})
     if (getUserProfileResponse&&getOldProfileImageResponse){
         res.send({
             status:200,

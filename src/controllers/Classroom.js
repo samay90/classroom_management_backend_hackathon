@@ -12,6 +12,8 @@ const fs = require('fs');
 const { parse } = require("path")
 const { isNumber } = require("util")
 const path = require("path")
+const { FieldPath } = require("firebase-admin/firestore")
+const { uploadFile, deleteFile } = require("../helpers/firebase/file")
 classRouter.post("/:class_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -291,8 +293,9 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                                     const len = files.attachments.length
                                     for (let i=0;i<len;i++){	
                                         const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                        files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
-                                        await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                        const filepath = `classrooms/${class_id}/resources/${fileName}`
+                                        const url = await uploadFile(files.attachments[i],filepath)
+                                        await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,path:filepath,url})
                                         if (i+1==len){
                                             resourceFlag=true
                                         }
@@ -444,7 +447,7 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
                             if (deleteResourceResponse.length>0){
                                 const len = deleteResourceResponse.length
                                 for (let i=0;i<len;i++){
-                                    fs.unlinkSync(`./public/classrooms/${class_id}/resources/${deleteResourceResponse[i].file_name}`,(err)=>{console.log(err)})
+                                    await deleteFile(deleteResourceResponse[i].path)
                                     if (i+1==len){
                                         res.send({
                                             status:200,
@@ -561,7 +564,8 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                             const toDeleteattachments = getResourceAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
                                             const len = toDeleteattachments.length
                                             for (let i=0;i<len;i++){
-                                                await deleteResourceAttachment({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
+                                                await deleteFile(toDeleteattachments[i].path)
+                                                await deleteResourceAttachment({cd_id:toDeleteattachments[i].cd_id}) 
                                             }
                                             deleteAttachmentsFlag = true
                                         }
@@ -580,8 +584,9 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                            files.attachments[i].mv(`./public/classrooms/${class_id}/resources/${fileName}`)
-                                            await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/resources/"+fileName})
+                                            const  filePath = `classrooms/${class_id}/resources/${fileName}`
+                                            const url = await uploadFile(files.attachments[i],filePath)
+                                            await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,url,path:filePath})
                                             if (i+1==len){
                                                 addResourceAttachmentFlag=true
                                             }
@@ -1223,8 +1228,9 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                            files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
-                                            await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
+                                            const filePath = `classrooms/${class_id}/assignments/${fileName}`
+                                            const url = await uploadFile(files.attachments[i],filePath)
+                                            await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,url,path:filePath})
                                             if (i+1==len){
                                                 resourceFlag=true
                                             }
@@ -1374,7 +1380,8 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                     const toDeleteattachments = getAssignmentsAttachmentsResponse.filter(i=>delete_attachments.includes(i.cd_id))
                                                     const len = toDeleteattachments.length
                                                     for (let i=0;i<len;i++){
-                                                        await deleteAssignmenteAttachment({class_id,file_name:toDeleteattachments[i].file_name,cd_id:toDeleteattachments[i].cd_id}) 
+                                                        await deleteFile(toDeleteattachments[i].path)
+                                                        await deleteAssignmenteAttachment({cd_id:toDeleteattachments[i].cd_id}) 
                                                     }
                                                     deleteAttachmentsFlag = true
                                                 }
@@ -1393,8 +1400,9 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                 const len = files.attachments.length
                                                 for (let i=0;i<len;i++){	
                                                     const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name);
-                                                    files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/${fileName}`)
-                                                    await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,file_name:fileName,path:"http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/"+fileName})
+                                                    const filePath = `classrooms/${class_id}/assignments/${fileName}`
+                                                    const url = await uploadFile(files.attachments[i],filePath)
+                                                    await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,url,path:filePath})
                                                     if (i+1==len){
                                                         addAssignementAttachmentFlag=true
                                                     }
@@ -1483,6 +1491,9 @@ classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>
                     }else{
                         const deleteAssignmentResponse = await deleteAssignment({class_id,assignment_id})
                         if (deleteAssignmentResponse){
+                            for (let i=0;i<deleteAssignmentResponse.length;i++){
+                                await deleteFile(deleteAssignmentResponse[i].path)
+                            }
                             res.send({
                                 status:200,
                                 error:false,
@@ -1640,30 +1651,29 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                         data:{}
                                     })
                                 }else{
-                                    const len = files.attachments.length
-                                    let completedFlag = false
-                                    let paths = []
-                                    let file_names =[]
-                                    for (let i=0;i<len;i++){	
-                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                        files.attachments[i].mv(`./public/classrooms/${class_id}/assignments/submissions/${fileName}`)
-                                        paths.push("http://"+req.get("host")+"/classrooms/"+class_id.toString()+"/assignments/submissions/"+fileName)
-                                        file_names.push(fileName)
-                                        if (i+1==len){
-                                            completedFlag=true
-                                        }
-                                    }
-                                    if (completedFlag){
-                                        const submitAssignmentResponse = await submitAssignment({class_id,assignment_id,user_id:user.user_id,path:paths,file_name:file_names})
-                                        if (submitAssignmentResponse){
-                                            res.send({
-                                                status:200,
-                                                error:false,
-                                                message:"Assignment submitted!!",
-                                                data:{
-                                                    path:paths
+                                    const nextProcess = async (completedFlag,paths,urls) =>{
+                                        if (completedFlag){
+                                            const submitAssignmentResponse = await submitAssignment({class_id,assignment_id,user_id:user.user_id,path:paths,url:urls})
+                                            if (submitAssignmentResponse){
+                                                for (let i=0;i<submitAssignmentResponse.length;i++){
+                                                    await deleteFile(submitAssignmentResponse[i])
                                                 }
-                                            })
+                                                res.send({
+                                                    status:200,
+                                                    error:false,
+                                                    message:"Assignment submitted!!",
+                                                    data:{
+                                                        path:paths
+                                                    }
+                                                })
+                                            }else{
+                                                res.status(501).send({
+                                                    status:501,
+                                                    error:true,
+                                                    message:lang.SOMETHING_WENT_WRONG,
+                                                    data:{}
+                                                })
+                                            }
                                         }else{
                                             res.status(501).send({
                                                 status:501,
@@ -1671,6 +1681,20 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                                 message:lang.SOMETHING_WENT_WRONG,
                                                 data:{}
                                             })
+                                        }
+                                    }
+                                    const len = files.attachments.length
+                                    let paths = []
+                                    let urls =[]
+                                    for (let i=0;i<len;i++){	
+                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
+                                        const filePath = `classrooms/${class_id}/assignments/submissions/${fileName}`
+                                        const url = await uploadFile(files.attachments[i],filePath)
+                                        paths.push(filePath)
+                                        urls.push(url)
+                                        
+                                        if (i+1==len){
+                                            nextProcess(true,paths,urls)
                                         }
                                     }
                                 }

@@ -558,7 +558,6 @@ const submitAssignment = ({
   return new Promise(async (resolve, reject) => {
     const currentTime = getTimeString();
     const q = `insert into submissions (class_id,assignment_id,user_id,url,path,marks,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?,?,?);`;
-    console.log('attachments',q);
     const attachments = await deleteAssignmentSubmission({ class_id, assignment_id, user_id });
     
     db.query(
@@ -616,7 +615,7 @@ const deleteAssignmentSubmission = ({ class_id, assignment_id, user_id }) => {
                 let attachments = await getSubmissionAttachment({
                   submission_id: result2[0].submission_id,
                 });
-                attachments = await JSON.parse(attachments.path);     
+                attachments = await attachments.path;     
                 resolve(attachments);
               }else{
                 resolve([]);
@@ -704,14 +703,14 @@ const getAssignment = ({ assignment_id, user_id }) => {
             db.query(q3, [assignment_id, user_id], (err3, result3) => {
               if (err3) {
                 reject(err3);
-              } else {
+              } else {                
                 resolve({
                   ...result[0],
                   attachments: result2,
                   submissions: result3[0]
                     ? {
                         ...result3[0],
-                        url: JSON.parse(result3[0].url),
+                        url: result3[0].url,
                       }
                     : null,
                 });

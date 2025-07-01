@@ -1,6 +1,6 @@
-const db = require("../helpers/database/db");
-const { getTimeString } = require("../helpers/functions/timeToWordDate");
-const fs = require("fs");
+const db = require('../helpers/database/db');
+const { getTimeString } = require('../helpers/functions/timeToWordDate');
+const fs = require('fs');
 
 const userClassroomStatus = ({ user_id, class_id }) => {
   return new Promise((resolve, reject) => {
@@ -35,12 +35,12 @@ const updateClassroom = ({
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     var fields = [];
-    if (class_name) fields.push(`class_name="${class_name}"`);
+    if (class_name) fields.push(`class_name='${class_name}'`);
     if (class_description)
-      fields.push(`class_description="${class_description}"`);
+      fields.push(`class_description='${class_description}'`);
     if (banner_id) fields.push(`banner_id=${banner_id}`);
     const q = `update classrooms set ${fields.join(
-      ","
+      ','
     )},updated_at=? where class_id=?;`;
     db.query(q, [currentTime, class_id], (err, result) => {
       if (err) {
@@ -154,7 +154,7 @@ WHERE r.resource_id = ?
       if (err) {
         reject(err);
       } else {
-        const q2 = `select cd_id,url from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+        const q2 = `select cd_id,url from class_documents where ra_id=? and cd_type='resource' and is_deleted=0;`;
         db.query(q2, [`r${resource_id}`], (err2, result2) => {
           if (err2) {
             reject(err2);
@@ -176,12 +176,12 @@ const deleteResource = ({ resource_id }) => {
       if (err) {
         reject(err);
       } else {
-        const q2 = `select path from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+        const q2 = `select path from class_documents where ra_id=? and cd_type='resource' and is_deleted=0;`;
         db.query(q2, [`r${resource_id}`], (err2, result2) => {
           if (err2) {
             reject(err2);
           } else {
-            const q3 = `update class_documents set is_deleted=1 where ra_id=? and cd_type="resource";`;
+            const q3 = `update class_documents set is_deleted=1 where ra_id=? and cd_type='resource';`;
             db.query(q3, [`r${resource_id}`], (err3, result3) => {
               if (err3) {
                 reject(err3);
@@ -197,7 +197,7 @@ const deleteResource = ({ resource_id }) => {
 };
 const getResourceAttachments = ({ resource_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select cd_id,path from class_documents where ra_id=? and cd_type="resource" and is_deleted=0;`;
+    const q = `select cd_id,path from class_documents where ra_id=? and cd_type='resource' and is_deleted=0;`;
     db.query(q, [`r${resource_id}`], (err, result) => {
       if (err) {
         reject(err);
@@ -226,11 +226,11 @@ const updateResource = ({ resource_id, title, body }) => {
     let fields = [];
     if (title) fields.push(`title=?`);
     if (body) fields.push(`body=?`);
-    fields.push(`updated_at="${currentTime}"`);
+    fields.push(`updated_at='${currentTime}'`);
     let vals = [];
     if (title) vals.push(title);
     if (body) vals.push(body);
-    const q = `update resources set ${fields.join(",")} where resource_id=?;`;
+    const q = `update resources set ${fields.join(',')} where resource_id=?;`;
     db.query(q, [...vals,resource_id], (err, result) => {
       if (err) {
         reject(err);
@@ -340,7 +340,7 @@ const writeSolution = ({ query_id, solution, user_id }) => {
 };
 const checkStudentsFlag = ({ class_id, user_ids }) => {
   return new Promise((resolve, reject) => {
-    const q = `select count(*) as flag from connections where class_id=? and user_id in (?) and role="student" and is_deleted=0;`;
+    const q = `select count(*) as flag from connections where class_id=? and user_id in (?) and role='student' and is_deleted=0;`;
     db.query(q, [class_id, user_ids], (err, result) => {
       if (err) {
         reject(err);
@@ -373,7 +373,7 @@ const markAttendance = ({ resource_id, class_id, attendance }) => {
         (i) =>
           `(${resource_id},${class_id},${i},${attendance[i]},0,${currentTime},${currentTime})`
       )
-      .join(",")};`;
+      .join(',')};`;
     db.query(q, (err, result) => {
       if (err) {
         reject(err);
@@ -430,7 +430,7 @@ const checkAssignmentFlag = ({ class_id, assignment_id }) => {
 };
 const getAssignmentAttachments = ({ assignment_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select cd_id,path from class_documents where ra_id=? and cd_type="assignment" and is_deleted=0;`;
+    const q = `select cd_id,path from class_documents where ra_id=? and cd_type='assignment' and is_deleted=0;`;
     db.query(q, [`a${assignment_id}`], (err, result) => {
       if (err) {
         reject(err);
@@ -470,14 +470,14 @@ const updateAssignment = ({
       fields.push(`body=?`);
     }
     if (due_date_time) {
-      fields.push(`due_date_time="${due_date_time}"`);
+      fields.push(`due_date_time='${due_date_time}'`);
     }
     if (total_marks) {
       fields.push(`total_marks=${total_marks}`);
     }
-    fields.push(`updated_at="${currentTime}"`);
+    fields.push(`updated_at='${currentTime}'`);
     const q = `update assignments set ${fields.join(
-      ","
+      ','
     )} where assignment_id=?;`;
     let vals = []
     if (title) {
@@ -558,7 +558,7 @@ const submitAssignment = ({
   return new Promise(async (resolve, reject) => {
     const currentTime = getTimeString();
     const q = `insert into submissions (class_id,assignment_id,user_id,url,path,marks,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?,?,?);`;
-    console.log("attachments",q);
+    console.log('attachments',q);
     const attachments = await deleteAssignmentSubmission({ class_id, assignment_id, user_id });
     
     db.query(
@@ -695,7 +695,7 @@ const getAssignment = ({ assignment_id, user_id }) => {
       if (err) {
         reject(err);
       } else {
-        const q2 = `select cd_id,url from class_documents where ra_id=? and cd_type="assignment" and is_deleted=0;`;
+        const q2 = `select cd_id,url from class_documents where ra_id=? and cd_type='assignment' and is_deleted=0;`;
         db.query(q2, [`a${assignment_id}`], (err2, result2) => {
           if (err2) {
             reject(err2);

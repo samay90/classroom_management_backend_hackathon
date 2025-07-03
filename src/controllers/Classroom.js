@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries, getClassRoomStream } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -1810,6 +1810,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/submission/:submission_id
 // Get Requests
 classRouter.get("/:class_id",async (req,res)=>{
     const class_id = req.params.class_id
+    const pageNo = req.query.page;
     const user = req.user;
     if (!parseInt(class_id)){
         res.status(400).send({
@@ -1828,18 +1829,15 @@ classRouter.get("/:class_id",async (req,res)=>{
                 data:{}
             })
         }else{
-            const getClassroomResourcesResponse = await getClassroomResources({class_id})
-            if (getClassroomResourcesResponse){
-                const getClassroomAssignmentsResponse = await getClassroomAssignments({class_id})
-                const finalData = [...getClassroomAssignmentsResponse,...getClassroomResourcesResponse]
-                if (getClassroomAssignmentsResponse){
-                    res.send({
-                        status:200,
-                        error:false,
-                        message:"",
-                        data:finalData.sort((a,b)=>b.created_at-a.created_at)
-                    })
-                }
+            const getClassRoomStreamResponse = await getClassRoomStream({class_id,pageNo:pageNo??1})
+            if (getClassRoomStreamResponse){
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Classroom Stream",
+                    count:getClassRoomStreamResponse.length,
+                    data:getClassRoomStreamResponse
+                })
             }else{
                 res.status(501).send({
                     status:501,

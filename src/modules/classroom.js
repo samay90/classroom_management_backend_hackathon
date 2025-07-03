@@ -817,12 +817,12 @@ const getResourceAttendances = ({ class_id, resource_id }) => {
     u.email,
     d.url,
     COALESCE(a.has_attended, -1) AS has_attended
-FROM appointment_booking.connections c
-JOIN appointment_booking.users u
+FROM connections c
+JOIN users u
     ON c.user_id = u.user_id
-LEFT JOIN appointment_booking.documents d
+LEFT JOIN documents d
     ON u.user_id = d.user_id AND d.is_deleted = 0
-LEFT JOIN appointment_booking.attendance a
+LEFT JOIN attendance a
     ON u.user_id = a.user_id
     AND a.class_id = c.class_id
     AND a.resource_id = ?
@@ -874,9 +874,66 @@ WHERE q.class_id = ?
     });
   });
 };
+const getClassRoomStream = ({class_id,pageNo}) =>{
+  return new Promise((resolve, reject) => {
+    const q = `
+      (
+  SELECT
+    r.resource_id,
+    NULL AS assignment_id,
+    NULL AS total_marks,
+    NULL AS due_date_time,
+    r.title,
+    r.body,
+    r.class_id,
+    r.user_id AS created_by,
+    u.first_name AS creator_first_name,
+    u.last_name AS creator_last_name,
+    r.created_at,
+    r.updated_at,
+    d.url AS creator_profile_image
+  FROM resources AS r
+  JOIN users AS u ON r.user_id = u.user_id
+  LEFT JOIN documents AS d ON u.user_id = d.user_id AND d.is_deleted = 0 AND d.doc_type = 'profile'
+  WHERE r.class_id = ? AND r.is_deleted = 0
+)
+UNION
+(
+  SELECT
+    NULL AS resource_id,
+    a.assignment_id,
+    a.total_marks,
+    a.due_date_time,
+    a.title,
+    a.body,
+    a.class_id,
+    a.user_id AS created_by,
+    u.first_name AS creator_first_name,
+    u.last_name AS creator_last_name,
+    a.created_at,
+    a.updated_at,
+    d.url AS creator_profile_image
+  FROM assignments AS a
+  JOIN users AS u ON a.user_id = u.user_id
+  LEFT JOIN documents AS d ON u.user_id = d.user_id AND d.is_deleted = 0 AND d.doc_type = 'profile'
+  WHERE a.class_id = ? AND a.is_deleted = 0
+)
+ORDER BY created_at DESC
+LIMIT ?, 5
+`
+    db.query(q, [class_id, class_id, (pageNo-1)*5], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
+  getClassRoomStream,
   getClassroomResources,
   getResourceQueries,
   getUserQuery,

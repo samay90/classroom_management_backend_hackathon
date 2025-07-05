@@ -13,5 +13,6 @@
     "body":500,
     "query_title":50,
     "query_body":200,
-    "solution":500
+    "solution":500,
+    "topic":50
 }

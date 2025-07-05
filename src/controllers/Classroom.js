@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries, getClassRoomStream } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries, getClassRoomStream, getTopics } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -248,80 +248,100 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                 data:{}
             })
         }else{
-            if (!((typeof(body.title)=="string" && (!body.body || typeof(body.body)=="string")))){
+            if (!body.title){
                 res.status(400).send({
-                    status:400,  
+                    status:400,
                     error:true,
-                    message:lang.STRING_VALUES,
+                    message:lang.TITLE_REQUIRED,
                     data:{}
                 })
             }else{
-                const lengthCheckerResponse = lengthChecker(body,rules)
-                if (lengthCheckerResponse.error){
+                if (!(((typeof(body.title)=="string") && (!body.body || typeof(body.body)=="string"))) ){
                     res.status(400).send({
-                        status:400,
+                        status:400,  
                         error:true,
-                        message:lengthCheckerResponse.message,
+                        message:lang.STRING_VALUES,
                         data:{}
                     })
                 }else{
-                    const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
-                    if (userClassroomStatusResponse.flag==0){
+                    if (body.topic && typeof(body.topic)!="string"){
                         res.status(400).send({
                             status:400,
                             error:true,
-                            message:lang.INVALID_CLASSROOM,
+                            message:lang.STRING_VALUES,
                             data:{}
                         })
                     }else{
-                        const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
-                        if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                        
+                    const lengthCheckerResponse = lengthChecker(body,rules)
+                    if (lengthCheckerResponse.error){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lengthCheckerResponse.message,
+                            data:{}
+                        })
+                    }else{
+                        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+                        if (userClassroomStatusResponse.flag==0){
                             res.status(400).send({
                                 status:400,
                                 error:true,
-                                message:lang.INVALID_ROLE_ELIGIBLE,
+                                message:lang.INVALID_CLASSROOM,
                                 data:{}
                             })
                         }else{
-                            const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body})
-                            let resourceFlag = false
-                            if (addResourceResponse){
-                                if (files && files.attachments){
-                                    if (!Array.isArray(files.attachments)){
-                                        files.attachments = [files.attachments]
-                                    }   
-                                    const len = files.attachments.length
-                                    for (let i=0;i<len;i++){	
-                                        const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                        const filepath = `classrooms/${class_id}/resources/${fileName}`
-                                        const url = await uploadFile(files.attachments[i],filepath)
-                                        await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,path:filepath,url})
-                                        if (i+1==len){
-                                            resourceFlag=true
+                            const getUserRoleResponse = await getUserRole({user_id:user.user_id,class_id})
+                            if (!(getUserRoleResponse.role=="creator" || getUserRoleResponse.role=="teacher")){
+                                res.status(400).send({
+                                    status:400,
+                                    error:true,
+                                    message:lang.INVALID_ROLE_ELIGIBLE,
+                                    data:{}
+                                })
+                            }else{
+                                const addResourceResponse = await addResource({class_id,user_id:user.user_id,title:body.title,body:body.body,topic:body.topic})
+                                let resourceFlag = false
+                                if (addResourceResponse){
+                                    if (files && files.attachments){
+                                        if (!Array.isArray(files.attachments)){
+                                            files.attachments = [files.attachments]
+                                        }   
+                                        const len = files.attachments.length
+                                        for (let i=0;i<len;i++){	
+                                            const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
+                                            const filepath = `classrooms/${class_id}/resources/${fileName}`
+                                            const url = await uploadFile(files.attachments[i],filepath)
+                                            await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,path:filepath,url})
+                                            if (i+1==len){
+                                                resourceFlag=true
+                                            }
                                         }
+                                    }else{
+                                        resourceFlag = true
+                                    }
+                                    if (resourceFlag){
+                                        res.send({
+                                            status:200,
+                                            error:false,
+                                            message:"Resource added!!",
+                                            data:{}
+                                        })
                                     }
                                 }else{
-                                    resourceFlag = true
-                                }
-                                if (resourceFlag){
-                                    res.send({
-                                        status:200,
-                                        error:false,
-                                        message:"Resource added!!",
+                                    res.status(501).send({
+                                        status:501,
+                                        error:true,
+                                        message:lang.SOMETHING_WENT_WRONG,
                                         data:{}
                                     })
                                 }
-                            }else{
-                                res.status(501).send({
-                                    status:501,
-                                    error:true,
-                                    message:lang.SOMETHING_WENT_WRONG,
-                                    data:{}
-                                })
                             }
-                        }
+                        }   
                     }   
-                }   
+                
+                    }
+                }
             }
         }
     }else{
@@ -479,6 +499,47 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
         }
     }
 })
+classRouter.get("/:class_id/topics",async (req,res)=>{
+    const user = req.user
+    let {class_id} = req.params
+    if (!parseInt(class_id)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_CLASSROOM,
+            data:{}
+        })
+    }else{
+        class_id = parseInt(class_id)
+        const userClassroomStatusResponse = await userClassroomStatus({user_id:user.user_id,class_id})
+        if (userClassroomStatusResponse.flag==0){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.INVALID_CLASSROOM,
+                data:{}
+            })
+        }else{
+            const getTopicsResponse = await getTopics({class_id})
+            
+            if (getTopicsResponse){
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"",
+                    data:getTopicsResponse
+                })
+            }else{
+                res.status(501).send({
+                    status:501,
+                    error:true,
+                    message:lang.SOMETHING_WENT_WRONG,
+                    data:{}
+                })
+            }
+        }
+    }
+})
 classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
     const body = req.body
     const user = req.user
@@ -595,7 +656,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                         addResourceAttachmentFlag = true
                                     }
                                     if (addResourceAttachmentFlag){
-                                        const updateResourceResponse = await updateResource({resource_id,title:body.title,body:body.body})
+                                        const updateResourceResponse = await updateResource({resource_id,title:body.title,body:body.body,topic:body.topic})
                                         if (updateResourceResponse){
                                             res.send({
                                                 status:200,
@@ -1218,7 +1279,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                     data:{}
                                 })
                             }else{
-                                const createAssignmentResponse = await createAssignment({class_id,title:body.title,body:body.body,due_date_time:due_date_time.getTime().toString(),user_id:user.user_id,total_marks:parseInt(body.total_marks)})
+                                const createAssignmentResponse = await createAssignment({class_id,title:body.title,body:body.body,topic:body.topic,due_date_time:due_date_time.getTime().toString(),user_id:user.user_id,total_marks:parseInt(body.total_marks)})
                                 if (createAssignmentResponse){
                                     let resourceFlag = false
                                     if (files && files.attachments){
@@ -1415,7 +1476,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                 if (body.due_date_time){
                                                     due_date_time = new Date(body.due_date_time)
                                                 }
-                                                const updateAssignmentResponse = await updateAssignment({assignment_id,title:body.title,body:body.body,due_date_time:due_date_time?.getTime().toString(),total_marks:parseInt(body.total_marks)})
+                                                const updateAssignmentResponse = await updateAssignment({assignment_id,topic:body.topic,title:body.title,body:body.body,due_date_time:due_date_time?.getTime().toString(),total_marks:parseInt(body.total_marks)})
                                                 if (updateAssignmentResponse){
                                                     res.send({
                                                         status:200,

@@ -77,13 +77,13 @@ const updateRole = ({ class_id, user_id, role }) => {
     });
   });
 };
-const addResource = ({ class_id, user_id, title, body }) => {
+const addResource = ({ class_id, user_id, title, body,topic }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
-    const q = `insert into resources (class_id,user_id,title,body,is_deleted,created_at,updated_at) values (?);`;
+    const q = `insert into resources (class_id,user_id,title,body,is_deleted,created_at,updated_at,topic) values (?);`;
     db.query(
       q,
-      [[class_id, user_id, title, body, 0, currentTime, currentTime]],
+      [[class_id, user_id, title, body, 0, currentTime, currentTime,topic]],
       (err, result) => {
         if (err) {
           reject(err);
@@ -220,16 +220,18 @@ const deleteResourceAttachment = ({ cd_id}) => {
     });
   });
 };
-const updateResource = ({ resource_id, title, body }) => {
+const updateResource = ({ resource_id, title, body ,topic}) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     let fields = [];
     if (title) fields.push(`title=?`);
     if (body) fields.push(`body=?`);
+    if (topic) fields.push(`topic=?`);
     fields.push(`updated_at='${currentTime}'`);
     let vals = [];
     if (title) vals.push(title);
     if (body) vals.push(body);
+    if (topic) vals.push(topic);
     const q = `update resources set ${fields.join(',')} where resource_id=?;`;
     db.query(q, [...vals,resource_id], (err, result) => {
       if (err) {
@@ -390,10 +392,11 @@ const createAssignment = ({
   due_date_time,
   user_id,
   total_marks,
+  topic
 }) => {
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
-    const q = `insert into assignments (class_id,title,body,due_date_time,user_id,total_marks,created_at,updated_at) values (?,?,?,?,?,?,?,?);`;
+    const q = `insert into assignments (class_id,title,body,due_date_time,user_id,total_marks,created_at,updated_at,topic) values (?,?,?,?,?,?,?,?,?);`;
     db.query(
       q,
       [
@@ -405,6 +408,7 @@ const createAssignment = ({
         total_marks,
         currentTime,
         currentTime,
+        topic
       ],
       (err, result) => {
         if (err) {
@@ -459,7 +463,9 @@ const updateAssignment = ({
   body,
   due_date_time,
   total_marks,
+  topic
 }) => {
+  
   return new Promise((resolve, reject) => {
     const currentTime = getTimeString();
     let fields = [];
@@ -468,6 +474,9 @@ const updateAssignment = ({
     }
     if (body) {
       fields.push(`body=?`);
+    }
+    if (topic) {
+      fields.push(`topic=?`);
     }
     if (due_date_time) {
       fields.push(`due_date_time='${due_date_time}'`);
@@ -485,6 +494,9 @@ const updateAssignment = ({
     }
     if (body) {
       vals.push(body)
+    }
+    if (topic) {
+      vals.push(topic)
     }
     vals.push(assignment_id)
     
@@ -665,7 +677,7 @@ const getTotalMarks = ({ assignment_id }) => {
 };
 const getClassroomResources = ({ class_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select r.resource_id,r.title,r.body,r.class_id,r.user_id as created_by,u.first_name as creator_first_name,u.last_name as creator_last_name,r.created_at,r.updated_at,d.url as creator_profile_image from resources as r,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where r.class_id=? and r.is_deleted=0 and r.user_id=u.user_id order by r.created_at;`;
+    const q = `select r.resource_id,r.title,r.body,r.class_id,r.user_id as created_by,r.topic,u.first_name as creator_first_name,u.last_name as creator_last_name,r.created_at,r.updated_at,d.url as creator_profile_image from resources as r,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where r.class_id=? and r.is_deleted=0 and r.user_id=u.user_id order by r.created_at;`;
     db.query(q, [class_id], (err, result) => {
       if (err) {
         reject(err);
@@ -677,7 +689,7 @@ const getClassroomResources = ({ class_id }) => {
 };
 const getClassroomAssignments = ({ class_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.total_marks,a.user_id as created_by,a.created_at,a.updated_at,u.first_name as creator_first_name,u.last_name as creator_last_name,d.url as creator_profile_image from assignments as a,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.class_id=? and a.is_deleted=0 and a.user_id=u.user_id order by a.created_at;`;
+    const q = `select a.assignment_id,a.topic,a.title,a.body,a.due_date_time,a.total_marks,a.user_id as created_by,a.created_at,a.updated_at,u.first_name as creator_first_name,u.last_name as creator_last_name,d.url as creator_profile_image from assignments as a,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.class_id=? and a.is_deleted=0 and a.user_id=u.user_id order by a.created_at;`;
     db.query(q, [class_id], (err, result) => {
       if (err) {
         reject(err);
@@ -689,7 +701,7 @@ const getClassroomAssignments = ({ class_id }) => {
 };
 const getAssignment = ({ assignment_id, user_id }) => {
   return new Promise((resolve, reject) => {
-    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.created_at,a.updated_at,a.total_marks,a.user_id,u.first_name as creator_first_name,u.last_name as creator_last_name,u.user_id as created_by,d.url as creator_profile_image from assignments as a ,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.user_id=u.user_id and a.assignment_id=?;`;
+    const q = `select a.assignment_id,a.title,a.body,a.due_date_time,a.topic,a.created_at,a.updated_at,a.total_marks,a.user_id,u.first_name as creator_first_name,u.last_name as creator_last_name,u.user_id as created_by,d.url as creator_profile_image from assignments as a ,users as u LEFT JOIN documents as d ON u.user_id=d.user_id and d.is_deleted=0 and d.doc_type='profile' where a.user_id=u.user_id and a.assignment_id=?;`;
     db.query(q, [assignment_id], (err, result) => {
       if (err) {
         reject(err);
@@ -883,6 +895,7 @@ const getClassRoomStream = ({class_id,pageNo}) =>{
     NULL AS assignment_id,
     NULL AS total_marks,
     NULL AS due_date_time,
+    r.topic,
     r.title,
     r.body,
     r.class_id,
@@ -904,6 +917,7 @@ UNION
     a.assignment_id,
     a.total_marks,
     a.due_date_time,
+    a.topic,
     a.title,
     a.body,
     a.class_id,
@@ -930,11 +944,24 @@ LIMIT ?, 5
     });
   });
 }
+const getTopics = ({class_id}) => {
+  return new Promise((resolve, reject) => {
+    const q = `(select distinct topic from resources where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd') UNION (select distinct topic from assignments where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd');`;
+    db.query(q, [class_id,class_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
 module.exports = {
   userClassroomStatus,
   getClassroomAssignments,
   getClassRoomStream,
   getClassroomResources,
+  getTopics,
   getResourceQueries,
   getUserQuery,
   getResourceAttendances,

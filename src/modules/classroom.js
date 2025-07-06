@@ -946,7 +946,20 @@ LIMIT ?, 5
 }
 const getTopics = ({class_id}) => {
   return new Promise((resolve, reject) => {
-    const q = `(select distinct topic from resources where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd') UNION (select distinct topic from assignments where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd');`;
+    const q = `SELECT topic, MAX(created_at) AS created_at
+FROM (
+    SELECT topic, created_at FROM resources
+    WHERE class_id = ? AND is_deleted = 0
+      AND topic IS NOT NULL AND topic != ''
+      AND topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd'
+    UNION ALL
+    SELECT topic, created_at FROM assignments
+    WHERE class_id = ? AND is_deleted = 0
+      AND topic IS NOT NULL AND topic != ''
+      AND topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd'
+) AS all_topics
+GROUP BY topic
+ORDER BY created_at DESC;`;
     db.query(q, [class_id,class_id], (err, result) => {
       if (err) {
         reject(err);
@@ -956,8 +969,23 @@ const getTopics = ({class_id}) => {
     });
   });
 }
+const getClasswork = ({class_id}) => {
+  return new Promise ((resolve, reject) => {
+    const q = `(select topic,title,resource_id,null as assignment_id,updated_at,created_at from resources where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd') 
+    UNION
+    (select topic,title,null as resource_id,assignment_id,updated_at,created_at from assignments where class_id=? and is_deleted=0 and topic is Not Null and topic != '' and topic != 'mUNPxeiMJMfTYDX4nvXs3aY8MOERV99x8AsrNFbCMTS4BiYEQd')`;
+    db.query(q, [class_id,class_id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  })
+}
 module.exports = {
   userClassroomStatus,
+  getClasswork,
   getClassroomAssignments,
   getClassRoomStream,
   getClassroomResources,

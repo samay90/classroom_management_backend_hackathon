@@ -245,7 +245,7 @@
     - Response : 
         - Details for all the classrooms that user has joined
 
-24) Get Classroom (GET) (/classroom/:class_id)
+24) Get Classroom (GET) (/classroom/:class_id?page=[page_no])
     - Header : Bearer Token
     - Params : class_id
     - Conditions :
@@ -308,3 +308,19 @@
         - User should belong from the classroom
     - Response :
         - Attendance data
+32) Get Classwork (GET) (/classroom/:class_id/classwork)
+    - Heaser : Bearer Token
+    - Params : class_id
+    - Conditions :
+        - Classroom should exist
+        - User should belong from the classroom
+    - Response :
+        - Classwork
+33) Get Classwork (GET) (/classroom/:class_id/topics)
+    - Heaser : Bearer Token
+    - Params : class_id
+    - Conditions :
+        - Classroom should exist
+        - User should belong from the classroom
+    - Response :
+        - All the topics

@@ -16,13 +16,14 @@ const uploadFile = async (file,filepath) =>{
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
     return publicUrl;
 }
-const deleteFile = async (filePath) => {
+const deleteFile = async (prefix) => {
   try {
-    const file = bucket.file(filePath);
-    await file.delete();
-    return { success: true, message: 'File deleted successfully' };
+    const [files] = await bucket.getFiles({ prefix });    
+    await Promise.all(files.map(file => file.delete()));
   } catch (error) {
     return { success: false, message: error.message };
+  } finally {
+    return { success: true , message: 'File deleted successfully' };
   }
 }
 module.exports = {uploadFile,deleteFile};

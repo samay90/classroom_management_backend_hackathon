@@ -176,20 +176,13 @@ const deleteResource = ({ resource_id }) => {
       if (err) {
         reject(err);
       } else {
-        const q2 = `select path from class_documents where ra_id=? and cd_type='resource' and is_deleted=0;`;
-        db.query(q2, [`r${resource_id}`], (err2, result2) => {
-          if (err2) {
-            reject(err2);
-          } else {
-            const q3 = `update class_documents set is_deleted=1 where ra_id=? and cd_type='resource';`;
+        const q3 = `update class_documents set is_deleted=1 where ra_id=? and cd_type='resource';`;
             db.query(q3, [`r${resource_id}`], (err3, result3) => {
               if (err3) {
                 reject(err3);
               } else {
-                resolve(result2);
+                resolve(result3);
               }
-            });
-          }
         });
       }
     });
@@ -517,13 +510,14 @@ const deleteAssignment = ({ assignment_id, class_id }) => {
       if (err) {
         reject(err);
       } else {
-        const attachments = await getAssignmentAttachments({ assignment_id });
-        for (var i = 0; i < attachments.length; i++) {
-          await deleteAssignmenteAttachment({
-            cd_id: attachments[i].cd_id,
-          });
-        }
-        resolve(attachments);
+        const q2 = `update class_documents set is_deleted=1 where ra_id=? and cd_type='assignment';`;
+        db.query(q2, [`a${assignment_id}`], (err2, result2) => {
+          if (err2) {
+            reject(err2);
+          } else {
+            resolve(result);
+          }
+        });
       }
     });
   });

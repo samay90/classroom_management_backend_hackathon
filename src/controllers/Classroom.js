@@ -310,7 +310,7 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                            const filepath = `classrooms/${class_id}/resources/${fileName}`
+                                            const filepath = `classrooms/${class_id}/resources/${addResourceResponse.insertId}/${fileName}`
                                             const url = await uploadFile(files.attachments[i],filepath)
                                             await addClassDocument({class_id,ra_id:`r${addResourceResponse.insertId}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,path:filepath,url})
                                             if (i+1==len){
@@ -325,7 +325,7 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                                             status:200,
                                             error:false,
                                             message:"Resource added!!",
-                                            data:{}
+                                            data:addResourceResponse
                                         })
                                     }
                                 }else{
@@ -464,27 +464,13 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
                     }else{
                         const deleteResourceResponse = await deleteResource({resource_id})
                         if (deleteResourceResponse){
-                            if (deleteResourceResponse.length>0){
-                                const len = deleteResourceResponse.length
-                                for (let i=0;i<len;i++){
-                                    await deleteFile(deleteResourceResponse[i].path)
-                                    if (i+1==len){
-                                        res.send({
-                                            status:200,
-                                            error:false,
-                                            message:"Resource deleted!!",
-                                            data:{}
-                                        })
-                                    }
-                                }
-                            }else{
-                                res.send({
-                                    status:200,
-                                    error:false,
-                                    message:"Resource deleted!!",
-                                    data:{}
-                                })
-                            }
+                            await deleteFile("classrooms/"+class_id+"/resources/"+resource_id+"/")
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Resource deleted!!",
+                                data:{}
+                            })
                         }else{
                             res.status(501).send({
                                 status:501,
@@ -645,7 +631,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                            const  filePath = `classrooms/${class_id}/resources/${fileName}`
+                                            const  filePath = `classrooms/${class_id}/resources/${resource_id}/${fileName}`
                                             const url = await uploadFile(files.attachments[i],filePath)
                                             await addClassDocument({class_id,ra_id:`r${resource_id}`,cd_type:"resource",user_id:user.user_id,title:body.title,body:body.body,url,path:filePath})
                                             if (i+1==len){
@@ -1235,12 +1221,12 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                 data:{}
             })
         }else{
-            const lengthCheckerResponse = lengthChecker(body,rules)
+            const lengthCheckerResponse = lengthChecker(body,rules)            
             if (lengthCheckerResponse.error){
                 res.status(400).send({
                     status:400,
                     error:true,
-                    message:lang.PLEASE_ENTER+lengthCheckerResponse.empty.join(", ")+"!!",
+                    message:lengthCheckerResponse.message,
                     data:{}
                 })
             }else{
@@ -1263,6 +1249,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                         })
                     }else{
                         const due_date_time = new Date(body.due_date_time)
+                        
                         if (due_date_time=="Invalid Date" || due_date_time<new Date()){
                             res.status(400).send({
                                 status:400,
@@ -1289,7 +1276,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                         const len = files.attachments.length
                                         for (let i=0;i<len;i++){	
                                             const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                            const filePath = `classrooms/${class_id}/assignments/${fileName}`
+                                            const filePath = `classrooms/${class_id}/assignments/${createAssignmentResponse.insertId}/${fileName}`
                                             const url = await uploadFile(files.attachments[i],filePath)
                                             await addClassDocument({class_id,ra_id:`a${createAssignmentResponse.insertId}`,cd_type:"assignment",user_id:user.user_id,url,path:filePath})
                                             if (i+1==len){
@@ -1461,7 +1448,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                 const len = files.attachments.length
                                                 for (let i=0;i<len;i++){	
                                                     const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name);
-                                                    const filePath = `classrooms/${class_id}/assignments/${fileName}`
+                                                    const filePath = `classrooms/${class_id}/assignments/${assignment_id}/${fileName}`
                                                     const url = await uploadFile(files.attachments[i],filePath)
                                                     await addClassDocument({class_id,ra_id:`a${assignment_id}`,cd_type:"assignment",user_id:user.user_id,title:body.title,body:body.body,url,path:filePath})
                                                     if (i+1==len){
@@ -1552,9 +1539,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>
                     }else{
                         const deleteAssignmentResponse = await deleteAssignment({class_id,assignment_id})
                         if (deleteAssignmentResponse){
-                            for (let i=0;i<deleteAssignmentResponse.length;i++){
-                                await deleteFile(deleteAssignmentResponse[i].path)
-                            }
+                            await deleteFile(`classrooms/${class_id}/assignments/${assignment_id}/`)
                             res.send({
                                 status:200,
                                 error:false,

@@ -1,7 +1,7 @@
 const express = require("express")
 const classRouter = express.Router()
 const lang = require("../../lang/lang.json") 
-const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries, getClassRoomStream, getTopics, getClasswork } = require("../modules/classroom")
+const { userClassroomStatus, getUserRole, updateClassroom, removeUser, updateRole, addResource, addClassDocument, checkResourceFlag, getResource, deleteResource, deleteResourceAttachment, updateResource, getResourceAttachments, askQuery, editQuery, checkQueryFlag, deleteQuery, checkQueryFlagUsingResourceId, writeSolution, checkStudentsFlag, markAttendance, deleteOldAttendance, createAssignment, checkAssignmentFlag, getAssignmentAttachments, deleteAssignmenteAttachment, updateAssignment, deleteAssignment, submitAssignment, checkedMarkedFlag, getDueDate, markSubmission, checkSubmissionFlag, getTotalMarks, getClassroomResources, getClassroomAssignments, getAssignment, getUserQuery, getClassroomSensitive, getClassroomClass, getUserClassProfile, getAssignmentSubmissions, getResourceAttendances, getResourceQueries, getClassRoomStream, getTopics, getClasswork, deleteQueries, deleteAttendance, deleteSubmissions } = require("../modules/classroom")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const bcrypt = require('bcrypt')
@@ -465,6 +465,8 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
                         const deleteResourceResponse = await deleteResource({resource_id})
                         if (deleteResourceResponse){
                             await deleteFile("classrooms/"+class_id+"/resources/"+resource_id+"/")
+                            await deleteQueries({resource_id});
+                            await deleteAttendance({resource_id});
                             res.send({
                                 status:200,
                                 error:false,
@@ -1540,6 +1542,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>
                         const deleteAssignmentResponse = await deleteAssignment({class_id,assignment_id})
                         if (deleteAssignmentResponse){
                             await deleteFile(`classrooms/${class_id}/assignments/${assignment_id}/`)
+                            await deleteSubmissions({assignment_id})
                             res.send({
                                 status:200,
                                 error:false,
@@ -1701,9 +1704,6 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                         if (completedFlag){
                                             const submitAssignmentResponse = await submitAssignment({class_id,assignment_id,user_id:user.user_id,path:paths,url:urls})
                                             if (submitAssignmentResponse){
-                                                for (let i=0;i<submitAssignmentResponse.length;i++){
-                                                    await deleteFile(submitAssignmentResponse[i])
-                                                }
                                                 res.send({
                                                     status:200,
                                                     error:false,
@@ -1729,12 +1729,13 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                             })
                                         }
                                     }
+                                    await deleteFile("classrooms/"+class_id+"/assignments/"+assignment_id+"/submissions/"+user.user_id+"/")
                                     const len = files.attachments.length
                                     let paths = []
                                     let urls =[]
                                     for (let i=0;i<len;i++){	
                                         const fileName = getTimeString()+"q"+user.user_id.toString()+"i"+i.toString()+path.extname(files.attachments[i].name)
-                                        const filePath = `classrooms/${class_id}/assignments/submissions/${fileName}`
+                                        const filePath = `classrooms/${class_id}/assignments/${assignment_id}/submissions/${user.user_id}/${fileName}`
                                         const url = await uploadFile(files.attachments[i],filePath)
                                         paths.push(filePath)
                                         urls.push(url)

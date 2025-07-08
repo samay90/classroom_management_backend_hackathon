@@ -1,326 +1,204 @@
-<h1>Classroom Management Backend</h1>
-<h2>Release Notes</h2>
-<p>Resource Link: https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing</p>
+# 📚 Classroom Management Backend
 
-1) SignUp (POST) (/auth/signup)
-    - Allowed Fields : email, phone_no, password, first_name, last_name
-    - Required Fields : All Allowed Fields
-    - Conditions :
-        - All the fields should be in string.
-        - Email, Phone_no should have its basic format.
-        - Password should contain atleast 1 special character.
-    - Response : token
+## 🚀 Release Notes
 
-2) Login (POST) (/auth/login)
-    - Allowed Fields : authenticator, password
-    - Required Fields : All Allowed Fields
-    - Conditions :
-        - User should be verified and non-deleted
-        - authenticator should be either of email and phone_no
-        - Password should be valid
-    - Response : token
-    - Header : Bearer Token
+**Resource Link:** [Google Drive](https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing)
 
-3) Update Profile (POST) (/user/profile/update)
-    - Header : Bearer Token
-    - Allowed Fields : first_name, last_name, dob, bio, profile,city,state,country
-    - Required Fields : Atleast 1 field from Allowed Fields
-    - Conditons :
-        - first_name, last_name, bio, city,state,country should be string format
-        - dob should be a valid date of any format
-        - Profile picture should be of type PNG, JPG, JPEG and size less than 1MB
+---
 
-4) View Profile (GET) (/user/profile)
-    - Header : Bearer Token
-    - Allowed Fields : No fields
-    - Conditions :
-        - Normal User authentic conditions
-    - Response : All the user data
+## 🧾 Auth Routes
 
-5) Create Classroom (POST) (/user/class/new)
-    - Header : Bearer Token
-    - Allowed Fields : class_name, class_description
-    - Required Fields : All allowed fields
-    - Conditions :
-        - All the fields should be of type string
-    - Response : join_code
+### 1. **Sign Up** `POST /auth/signup`
+- **Allowed Fields:** `email`, `phone_no`, `password`, `first_name`, `last_name`
+- **Required:** All fields
+- **Validations:**
+  - All must be strings
+  - `email`, `phone_no` must be valid formats
+  - `password` must include at least 1 special character
+- **Response:** `token`
 
-6) Join Classroom (POST) (/user/class/join)
-    - Header : Bearer Token
-    - Allowed Fields : join_code
-    - Required Fields : All allowed Fields
-    - Conditions :
-        - All fields should be of type string
-        - join_code should be valid
-        - user should not have any role in that classroom
-     - Response : Basic
+### 2. **Login** `POST /auth/login`
+- **Allowed Fields:** `authenticator`, `password`
+- **Required:** All fields
+- **Validations:**
+  - User must be verified and not deleted
+  - `authenticator` can be email or phone
+  - Valid `password`
+- **Response:** `token`
+- **Header:** `Authorization: Bearer <token>`
 
-7) Update Classroom (POST) (/classroom/:class_id/edit)
-    - Header : Bearer Token
-    - Allowed Fields : class_name, class_description, banner_id
-    - Required Fields : Any one of Allowed Fields
-    - Params : class_id
-    - Conditions :
-        - banner_id must be number
-        - User should be creator of the class
-        - class_id must be integral and class should exist
-        - All the fields should be of type string
-    - Response : Basic
+---
 
-8) Manage Classroom (POST) (/classroom/:class_id/manage)
-    - Allowed Fields : user_id, action_type, action (T OR S)
-    - Required Fields : user_id,action_type (R or M)
-    - Header : Bearer Token
-    - Conditions :
-        - Both the users must be there in class
-        - Main user must be the creator of the class
-        - Cannot modify himself
-        - If action_type is M then action should provided
-    - Response : Basic
+## 👤 User Routes
 
-9) Add Resource (POST) (/classroom/:class_id/resource/new)
-    - Allowed Fields : title, body, attachments
-    - Required Fields : title
-    - Params : class_id
-    - Header :  Bearer Token
-    - Conditons : 
-        - User must be a part and creator or teacher of the classroom.
-        - title should be less 50chars and body must be less than 200chars.
-        - attachments is files
-    - Response : Basic
+### 3. **Update Profile** `POST /user/profile/update`
+- **Header:** Bearer Token
+- **Allowed Fields:** `first_name`, `last_name`, `dob`, `bio`, `profile`, `city`, `state`, `country`
+- **Required:** At least 1 field
+- **Validations:**
+  - Text fields must be strings
+  - `dob`: valid date
+  - `profile`: PNG/JPG/JPEG, max size 1MB
 
-10) View Resource (GET) (/classroom/:class_id/resource/:resource_id)
-    - Params : class_id, resource_id
-    - Header : Bearer Token
-    - Conditions :
-        - User must be the part of the classroom.
-        - Resource should belong for particular classroom.
-        - Resource should not be deleted
-    - Response : All the details of resource and attachemtns.
+### 4. **View Profile** `GET /user/profile`
+- **Header:** Bearer Token
+- **Response:** User data
 
-11) Delete Resource (POST) (/classroom/:class_id/resource/:resource_id/delete)
-    - Params : class_id, resource_id
-    - Header : Bearer Token
-    - Conditions :
-        - User must be the creator or teacher of the classroom.
-        - Resource should belong for particular classroom.
-        - Resource should not be deleted
-    - Response : Basic
+---
 
-12) Edit Resource (POST) (/classroom/:class_id/resource/:resource_id/edit)
-    - Params : class_id, resource_id
-    - Header : Bearer Token
-    - Allowed Fields : body, title, delete_attachments, attachments
-    - Required Fields : Any one of Allowed Fields
-    - Conditions :
-        - Resource should belong form same classroom
-        - User should have creator or teacher role in the classroom
-        - body should be less than 200chars and title less then 50chars
-        - delete_attachments should be array of attachment ids in stringified format
-        - attachments should be files
-    - Response : Basic
+## 🏫 Classroom Routes
 
-13) Ask Query (POST) (/classroom/:class_id/resource/:resource_id/query/ask)
-    - Params : class_id, resource_id
-    - Header : Bearer Token
-    - Allowed Fields : query_title, query_body
-    - Required Fields : query_body
-    - Conditions :
-        - Resource should belong from same classroom
-        - User should be student of that classroom
-        - query_title should be less than 50chars and query_body should be less than 200chars
+### 5. **Create Classroom** `POST /user/class/new`
+- **Header:** Bearer Token
+- **Fields:** `class_name`, `class_description` (required, strings)
+- **Response:** `join_code`
 
-14) Edit Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/edit)
-    - Params : class_id, resource_id, query_id
-    - Header : Bearer Token
-    - Allowed Fields : query_title, query_body
-    - Required Fields : Anyone of the allowed fields
-    - Conditions :
-        - Resource should belong from same classroom
-        - Query should belong from same resource
-        - User should be student of that classroom and query should belong to user
-        - query_title should be less than 50chars and query_body should be less than 200chars
+### 6. **Join Classroom** `POST /user/class/join`
+- **Header:** Bearer Token
+- **Fields:** `join_code` (required, string)
+- **Validations:** Must not already be part of the class
 
-15) Delete Query (DELETE) (/classroom/:class_id/resource/:resource_id/query/:query_id/delete)
-    - Params : class_id, resource_id, query_id
-    - Header : Bearer Token
-    - Allowed Fields : None
-    - Conditions :
-        - Resource should belong from same classroom
-        - User should be student of that classroom and query should belong to user
-        - Query should belong from same resource
+### 7. **Update Classroom** `POST /classroom/:class_id/edit`
+- **Header:** Bearer Token
+- **Allowed Fields:** `class_name`, `class_description`, `banner_id`
+- **Validations:**
+  - `banner_id` must be a number
+  - Must be class creator
 
-16) Solve Query (POST) (/classroom/:class_id/resource/:resource_id/query/:query_id/solve)
-    - Params : class_id, resource_id, query_id
-    - Header : Bearer Token
-    - Allowed Fields : solution
-    - Required Fields : solution
-    - Conditions :
-        - Resource should belong from same classroom
-        - Query should belong from same resource
-        - solution should be less than 500chars
-        - user should be creator or teacher of the classroom
+### 8. **Manage Classroom** `POST /classroom/:class_id/manage`
+- **Header:** Bearer Token
+- **Fields:** `user_id`, `action_type (R/M)`, `action (T/S)`
+- **Validations:**
+  - Both users must be in class
+  - Cannot modify self
+  - Must be creator
 
-17) Mark Attendance (POST) (/classroom/:class_id/resource/:resource_id/attendance/mark)
-    - Parmas : class_id, resource_id
-    - Header : Bearer Token
-    - Allowed Fields : attendance
-    - Required Fields : All the allowed fields
-    - Conditons :
-        - Resource should belong from same classroom.
-        - User must be either teacher or creator of the classrooom.
-        - Attendance must be of the form {"user_id":(0/1),...}.
-        - user_id of the each user in the attendance must be the student of the classroom.
-        - The older attendance of students provided in attendance will get deleted.
+---
 
-18) Assign Assignment (POST) (/classroom/:class_id/assignments/new)
-    - Parmas : class_id
-    - Header : Bearer Token
-    - Allowed Fields : title, body, due_date_time, total_marks, attachments (files)
-    - Required Fields : title, due_date_time, total_marks
-    - Conditions : 
-        - Classroom should exist.
-        - User should be creator or teacher of the class
-        - due_date_time can be any valid format of the Javascript.
-        - title shoulld be less than 50chars and body should be less than 200chars.
-        - total_marks should be an integer.
-    - Response : Basic
+## 📁 Resource Routes
 
-19) Edit Assignment (POST) (/classroom/:class_id/asssignment/:assignment_id/edit)
-    - Params : class_id, assignment_id
-    - Header : Bearer Token
-    - Allowed Fields : title, body, due_date_time, total_marks, delete_attachments, attachments (files)
-    - Required Fields : Anyone of the allowed fields
-    - Conditions :
-        - Classroom should exist.
-        - User should be creator or teacher of the class
-        - due_date_time can be any valid format of the Javascript.
-        - title shoulld be less than 50chars and body should be less than 200chars.
-        - total_marks should be an integer.
-        - delete_attachments should be array of attachment ids in stringified format
-        - attachments should be files
-    - Response : Basic
+### 9. **Add Resource** `POST /classroom/:class_id/resource/new`
+- **Header:** Bearer Token
+- **Fields:** `title` (required, < 50 chars), `body (< 200 chars)`, `attachments`
+- **Must be:** Creator/Teacher
 
-20) Delete Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/delete)
-    - Params : class_id, assignment_id
-    - Header : Bearer Token
-    - Allowed Fields : Null
-    - Required Fields : Null
-    - Conditions : Null
-        - Classroom should exist.
-        - Assignment should exist and should belong from that classroom.
-        - User should be creator or teacher of the class
-    - Response : Basic
+### 10. **View Resource** `GET /classroom/:class_id/resource/:resource_id`
+- **Header:** Bearer Token
+- **Validations:** User must be part of class, resource must exist and not be deleted
 
+### 11. **Delete Resource** `POST /classroom/:class_id/resource/:resource_id/delete`
+- **Header:** Bearer Token
+- **Must be:** Creator/Teacher
 
-21) Submit Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submit)
-    - Params : class_id, assignment_id
-    - Header : Bearer Token
-    - Allowed Fields : attachments (files)
-    - Required Fields : attachments (files)
-    - Conditions :
-        - Classroom should exist.
-        - User should be student of the class
-        - Assignment should exist and should belong from that classroom.
-        - current time should be less than due_date_time.
-        - Previous submission should not be marked
-        - Previous submission would automitically deleted.
-        - attachments should be files
-    - Response : Basic + paths of attachements
+### 12. **Edit Resource** `POST /classroom/:class_id/resource/:resource_id/edit`
+- **Header:** Bearer Token
+- **Allowed Fields:** `title`, `body`, `delete_attachments`, `attachments`
+- **Validations:**
+  - `title` < 50 chars, `body` < 200 chars
+  - `delete_attachments`: stringified array of IDs
 
-22) Mark Assignment (POST) (/classroom/:class_id/assignment/:assignment_id/submission/:submission_id
-    - Params : class_id, assignment_id, submission_id
-    - Header : Bearer Token
-    - Allowed Fields : marks
-    - Required Fields : marks
-    - Conditions : 
-        - Classroom should exist.
-        - Submission should belong from its assignment .
-        - User should be teacher or creator of the classroom.
-        - Marks should less than total_marks of the assignment.
-        - Submission should exist.
+---
 
-23) Get User Classrooms (GET) (/user/classrooms)
-    - Header : Bearer Token
-    - Response : 
-        - Details for all the classrooms that user has joined
+## ❓ Query Routes
 
-24) Get Classroom (GET) (/classroom/:class_id?page=[page_no])
-    - Header : Bearer Token
-    - Params : class_id
-    - Conditions :
-        - User should be the member of the classroom
-    - Response : 
-        - All the data (resources and assignments) of the classrooms
+### 13. **Ask Query** `POST /classroom/:class_id/resource/:resource_id/query/ask`
+- **Header:** Bearer Token
+- **Fields:** `query_body` (required), `query_title` (< 50 chars)
+- **Must be:** Student of classroom
 
-25) Get Assignemnt (GET) (/classroom/:class_id/assignment/:assignment_id)
-    - Header : Bearer Token
-    - Params : class_id,assignment_id
-    - Conditions:
-        - User should be the member of the classroom
-    - Response : 
-        - All the data of the particular assignment
+### 14. **Edit Query** `POST /classroom/:class_id/resource/:resource_id/query/:query_id/edit`
+- **Header:** Bearer Token
+- **Validations:** Same as Ask Query + must own query
 
-26) Get User query's (GET) (/classroom/:class_id/resource/:resource_id/queries)
-    - Header : Bearer Token
-    - Params : class_id,resource_id
-    - Conditions: 
-        - User should be the member of the classroom
-    - Response : 
-        - All the data of the particular assignment
+### 15. **Delete Query** `DELETE /classroom/:class_id/resource/:resource_id/query/:query_id/delete`
+- **Header:** Bearer Token
+- **Must be:** Owner of query and student
 
-27) Get Classroom sensitive information (GET) (/classroom/:class_id/sensitive)
-    - Header : Bearer Token
-    - Params : class_id
-    - Conditions :
-        - User should be creator of the classroom
-    - Response : Info about the classroom
-28) Get Classmates of a Classroom (GET) (/classroom/:class_id/class)
-    - Header : Bearer Token
-    - Params : class_id
-    - Conditions :
-        - User should be part of the classroom
-    - Response : All the info of class.
-29) Get Data of Particular user of classroom (GET) (/classroom/:class_id/class/:user_id)
-    - Header : Bearer Token
-    - Params : class_id, user_id
-    - Conditions :
-        - User should be part of the classroom
-        - requested user should also be the part of the classroom
-    - Response : 
-        - User's data with more information
+### 16. **Solve Query** `POST /classroom/:class_id/resource/:resource_id/query/:query_id/solve`
+- **Header:** Bearer Token
+- **Field:** `solution` (< 500 chars)
+- **Must be:** Creator/Teacher
 
-30) Get Submissions (GET) (/classroom/:class_id/assignment/:assignment_id/submissions)
-    - Header : Bearer Token
-    - Params : class_id,assignment_id
-    - Conditions : 
-        - Classroom should exist.
-        - Submission should belong from its assignment .
-        - User should be teacher or creator of the classroom.
-    - Response :
-        - All users submission
-    
-31) Get Attendances (GET) (/classroom/:class_id/resource/:resource_id/attendances)
-    - Header : Bearer Token
-    - Params : class_id,resource_id
-    - Conditions :
-        - Classroom should exist
-        - User should belong from the classroom
-    - Response :
-        - Attendance data
-32) Get Classwork (GET) (/classroom/:class_id/classwork)
-    - Heaser : Bearer Token
-    - Params : class_id
-    - Conditions :
-        - Classroom should exist
-        - User should belong from the classroom
-    - Response :
-        - Classwork
-33) Get Classwork (GET) (/classroom/:class_id/topics)
-    - Heaser : Bearer Token
-    - Params : class_id
-    - Conditions :
-        - Classroom should exist
-        - User should belong from the classroom
-    - Response :
-        - All the topics
+---
+
+## 📝 Attendance Routes
+
+### 17. **Mark Attendance** `POST /classroom/:class_id/resource/:resource_id/attendance/mark`
+- **Header:** Bearer Token
+- **Field:** `attendance` JSON: `{ "user_id": 0 | 1, ... }`
+- **Validations:** Users must be students, class exists
+
+---
+
+## 📌 Assignment Routes
+
+### 18. **Assign Assignment** `POST /classroom/:class_id/assignments/new`
+- **Header:** Bearer Token
+- **Fields:** `title`, `due_date_time`, `total_marks` (required)
+- **Validations:** Must be teacher/creator
+
+### 19. **Edit Assignment** `POST /classroom/:class_id/assignment/:assignment_id/edit`
+- **Header:** Bearer Token
+- **Fields:** Same as assign + `delete_attachments`
+- **Validations:** Same as assign
+
+### 20. **Delete Assignment** `POST /classroom/:class_id/assignment/:assignment_id/delete`
+- **Header:** Bearer Token
+- **Must be:** Creator/Teacher
+
+### 21. **Submit Assignment** `POST /classroom/:class_id/assignment/:assignment_id/submit`
+- **Header:** Bearer Token
+- **Fields:** `attachments` (required)
+- **Validations:**
+  - Must be before due date
+  - Deletes previous unmarked submission
+
+### 22. **Mark Assignment** `POST /classroom/:class_id/assignment/:assignment_id/submission/:submission_id`
+- **Header:** Bearer Token
+- **Field:** `marks`
+- **Validations:** Submission must exist and `marks < total_marks`
+
+---
+
+## 📦 Get Routes
+
+### 23. **Get User Classrooms** `GET /user/classrooms`
+- **Header:** Bearer Token
+
+### 24. **Get Classroom Data** `GET /classroom/:class_id?page=[page_no]`
+- **Header:** Bearer Token
+- **Returns:** All classroom content
+
+### 25. **Get Assignment** `GET /classroom/:class_id/assignment/:assignment_id`
+- **Header:** Bearer Token
+
+### 26. **Get Queries** `GET /classroom/:class_id/resource/:resource_id/queries`
+- **Header:** Bearer Token
+
+### 27. **Get Classroom Sensitive Info** `GET /classroom/:class_id/sensitive`
+- **Header:** Bearer Token
+- **Must be:** Creator
+
+### 28. **Get Classmates** `GET /classroom/:class_id/class`
+- **Header:** Bearer Token
+
+### 29. **Get User Data in Class** `GET /classroom/:class_id/class/:user_id`
+- **Header:** Bearer Token
+
+### 30. **Get Submissions** `GET /classroom/:class_id/assignment/:assignment_id/submissions`
+- **Header:** Bearer Token
+- **Must be:** Creator/Teacher
+
+### 31. **Get Attendances** `GET /classroom/:class_id/resource/:resource_id/attendances`
+- **Header:** Bearer Token
+
+### 32. **Get Classwork** `GET /classroom/:class_id/classwork`
+- **Header:** Bearer Token
+
+### 33. **Get Topics** `GET /classroom/:class_id/topics`
+- **Header:** Bearer Token
+
+---
+
+> ✍️ For more info or updates, refer to the shared [resource folder](https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing).
+

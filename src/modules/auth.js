@@ -1,10 +1,10 @@
 const db = require("../helpers/database/db")
 const {getTimeString} = require("../helpers/functions/timeToWordDate")
 
-const checkUniqueFlag = ({email,phone_no}) =>{
+const checkUniqueFlag = ({email}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from users where email=? or phone_no=?;`;
-        db.query(q,[email,phone_no],(err,result)=>{
+        const q = `select count(*) as flag from users where email=?;`;
+        db.query(q,[email],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -13,11 +13,23 @@ const checkUniqueFlag = ({email,phone_no}) =>{
         })
     })
 }
-const createUser = ({email,phone_no,password,first_name,last_name}) =>{
+const deleteNotVerified = ({email}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `delete from users where email=? and is_verified=0;`;
+        db.query(q,[email],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const createUser = ({email,password,first_name,last_name,code}) =>{
     return new Promise((resolve,reject)=>{
         const currentTime = getTimeString()
-        const q = `insert into users (email, phone_no, password, is_deleted, is_verified, first_name, last_name, dob, created_at, updated_at, bio) values (?);`;
-        db.query(q,[[email,phone_no,password,0,1,first_name,last_name,null,currentTime,currentTime,null]],(err,result)=>{
+        const q = `insert into users (email, password, is_deleted, is_verified, first_name, last_name, dob, created_at, updated_at, bio,code) values (?);`;
+        db.query(q,[[email,password,0,0,first_name,last_name,null,currentTime,currentTime,null,code]],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -28,7 +40,7 @@ const createUser = ({email,phone_no,password,first_name,last_name}) =>{
 }
 const checkEmailOrPhoneNo = ({authenticator}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select count(*) as flag from users where (email=? or phone_no=?) and is_deleted=0 and is_verified=1;`;
+        const q = `select count(*) as flag from users where email=? and is_deleted=0 and is_verified=1;`;
         db.query(q,[authenticator,authenticator],(err,result)=>{
             if (err){
                 reject(err)
@@ -40,7 +52,7 @@ const checkEmailOrPhoneNo = ({authenticator}) =>{
 }
 const getPassword = ({authenticator}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select password from users where email=? or phone_no=?;`;
+        const q = `select password from users where email=?;`;
         db.query(q,[authenticator,authenticator],(err,result)=>{
             if (err){
                 reject(err)
@@ -52,7 +64,7 @@ const getPassword = ({authenticator}) =>{
 }
 const getTokenDetails = ({authenticator}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select user_id,email,phone_no from users where email=? or phone_no=?;`;
+        const q = `select user_id,email from users where email=?;`;
         db.query(q,[authenticator,authenticator],(err,result)=>{
             if (err){
                 reject(err)
@@ -62,4 +74,28 @@ const getTokenDetails = ({authenticator}) =>{
         })
     })
 }
-module.exports ={checkUniqueFlag,getPassword,getTokenDetails,createUser,checkEmailOrPhoneNo}
+const checkCode = ({email,code}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select created_at from users where email=? and code=? and is_verified=0;`;
+        db.query(q,[email,code],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const verifyCode = ({email}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update users set is_verified=1,code=null where email=?;`;
+        db.query(q,[email],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports ={checkUniqueFlag,verifyCode,checkCode,getPassword,getTokenDetails,createUser,checkEmailOrPhoneNo,deleteNotVerified}

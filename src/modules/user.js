@@ -70,7 +70,7 @@ const getOldProfileImage = ({user_id}) =>{
 }
 const getUserProfile = ({user_id}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select user_id,email,phone_no,is_deleted,is_verified,first_name,last_name,dob,created_at,updated_at,bio,city,state,country from users where user_id=?;`;
+        const q = `select user_id,email,is_deleted,is_verified,first_name,last_name,dob,created_at,updated_at,bio,city,state,country from users where user_id=?;`;
         db.query(q,[user_id],(err,result)=>{
             if (err){
                 reject(err)

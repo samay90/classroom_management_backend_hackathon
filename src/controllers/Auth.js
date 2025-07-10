@@ -5,16 +5,18 @@ const lang = require("../../lang/lang.json")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const {isEmail,isPassword} = require("../helpers/functions/credentials");
-const { checkUniqueFlag, createUser, checkEmailOrPhoneNo, getPassword, getTokenDetails } = require('../modules/auth');
+const { checkUniqueFlag, createUser, checkEmailOrPhoneNo, getPassword, getTokenDetails, deleteNotVerified, verifyCode, checkCode } = require('../modules/auth');
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotEnv = require("dotenv")
-const isInteger = require("../helpers/functions/isIntegerString")
+const isInteger = require("../helpers/functions/isIntegerString");
+const { encrypt, decrypt } = require('node-encryption');
+const { sendOtp } = require('../helpers/mail/mail');
 dotEnv.config()
 
 authRouter.post("/signup",async (req,res)=>{
     const body = req.body;
-    const checkerResponse = checker(body,["email","phone_no","password","first_name","last_name"])
+    const checkerResponse = checker(body,["email","password","first_name","last_name"])
     if (checkerResponse.error){
         res.status(400).send({
             status:400,
@@ -23,7 +25,7 @@ authRouter.post("/signup",async (req,res)=>{
             data:{}
         })
     }else{
-        if (!(typeof(body.first_name)=="string" && typeof(body.last_name)=="string" && typeof(body.email)=="string" && typeof(body.password)=="string" && typeof(body.phone_no)=="string")){
+        if (!(typeof(body.first_name)=="string" && typeof(body.last_name)=="string" && typeof(body.email)=="string" && typeof(body.password)=="string" )){
             res.status(400).send({
                 status:400,
                 error:true,
@@ -57,15 +59,8 @@ authRouter.post("/signup",async (req,res)=>{
                         data:{}
                     })
                 }else{
-                    if (!isInteger(body.phone_no)){
-                        res.status(400).send({
-                            status:400,
-                            error:true,
-                            message:lang.INVALID_PHONE_NO,
-                            data:{}
-                        })
-                    }else{
-                        const checkUniqueFlagResponse = await checkUniqueFlag({email:body.email,phone_no:body.phone_no})
+                        await deleteNotVerified({email:body.email})
+                        const checkUniqueFlagResponse = await checkUniqueFlag({email:body.email})
                         if (checkUniqueFlagResponse.flag!==0){
                             res.status(401).send({
                                 status:401,
@@ -74,21 +69,17 @@ authRouter.post("/signup",async (req,res)=>{
                                 data:{}
                             })
                         }else{
+                            const code = Math.floor(100000 + Math.random() * 900000);
                             const hassPass = bcrypt.hashSync(body.password,10)
-                            const createUserResponse = await createUser({email:body.email,phone_no:body.phone_no.toString(),password:hassPass,first_name:body.first_name,last_name:body.last_name})                            
+                            const createUserResponse = await createUser({email:body.email,password:hassPass,first_name:body.first_name,last_name:body.last_name,code})                            
                             if (createUserResponse){
-                                const token = jwt.sign({
-                                    user_id:createUserResponse.insertId,
-                                    email:body.email,
-                                    phone_no:body.phone_no
-                                },process.env.TOKEN_SECRET,{ expiresIn:"100hr"})
+                                const slug = encrypt(body.email, process.env.ENCRYPTION_KEY);
+                                await sendOtp({email:body.email,otp:code})
                                 res.send({
                                     status:200,
                                     error:false,
-                                    message:"Account Created!!",
-                                    data:{
-                                        token:token
-                                    }
+                                    message:lang.SIGNUP_SUCCESS,
+                                    data:{slug:slug}
                                 })
                             }else{
                                 res.status(501).send({
@@ -99,7 +90,7 @@ authRouter.post("/signup",async (req,res)=>{
                                 })
                             }
                         }
-                    }
+                    
                 }
             }
         }
@@ -164,6 +155,55 @@ authRouter.post("/login",async (req,res)=>{
                         data:{}
                     })
                 }
+            }
+        }
+    }
+})
+authRouter.post("/verify/:slug",async (req,res)=>{
+    const body = req.body
+    let {slug} = req.params
+    if (!slug || !body.code){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.UNAUTHORISED_ACCESS,
+            data:{}
+        })
+    }else{
+        const decrypted = decrypt(slug, process.env.ENCRYPTION_KEY);
+        const checkCodeResponse = await checkCode({email:decrypted,code:body.code});
+        if (checkCodeResponse.length==0){
+            res.status(401).send({
+                status:401,
+                error:true,
+                message:lang.UNAUTHORISED_ACCESS,
+                data:{}
+            })
+        }else{
+            const creationDate = new Date(checkCodeResponse[0].created_at)
+            const now = new Date()
+            const timeDiff = now.getTime() - creationDate.getTime()
+            const diffMinutes = Math.round(timeDiff / 1000 / 60)
+            if (diffMinutes>10){
+                res.status(401).send({
+                    status:401,
+                    error:true,
+                    message:lang.UNAUTHORISED_ACCESS,
+                    data:{}
+                })
+                
+            }else{
+                await verifyCode({email:decrypted})
+                const getTokenDetailsResponse = await getTokenDetails({authenticator:decrypted})
+                const token = jwt.sign({...getTokenDetailsResponse},process.env.TOKEN_SECRET,{expiresIn:"100hr"})
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Successfully verified!!",
+                    data:{
+                        token:token
+                    }
+                })
             }
         }
     }

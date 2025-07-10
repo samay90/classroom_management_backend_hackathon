@@ -10,16 +10,7 @@ const isPassword = (d)=>{
     return validPasswordFlag
   }
   const isEmail = (email) =>{
-      if (!email){
-        return false
-      }else{
-        if (!email.includes("@")){
-          return false
-      }else if (!email.split("@")[1].includes(".")){
-          return false
-      }else{
-          return true
-      }
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
   module.exports = {isPassword,isEmail}

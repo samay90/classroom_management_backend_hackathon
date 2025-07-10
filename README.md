@@ -9,11 +9,11 @@
 ## 🧾 Auth Routes
 
 ### 1. **Sign Up** `POST /auth/signup`
-- **Allowed Fields:** `email`, `phone_no`, `password`, `first_name`, `last_name`
+- **Allowed Fields:** `email`, `password`, `first_name`, `last_name`
 - **Required:** All fields
 - **Validations:**
   - All must be strings
-  - `email`, `phone_no` must be valid formats
+  - `email` must be valid formats
   - `password` must include at least 1 special character
 - **Response:** `token`
 
@@ -24,8 +24,15 @@
   - User must be verified and not deleted
   - `authenticator` can be email or phone
   - Valid `password`
+- **Response:** `slug`
+
+### 34. **Verify** `POST /auth/verify/:slug`
+- **Allowed Fields:** `code`
+- **Validations:**
+  - User must be not verified
+  - `code` is the otp
+  - Valid `slug` and `code`
 - **Response:** `token`
-- **Header:** `Authorization: Bearer <token>`
 
 ---
 
@@ -201,4 +208,3 @@
 ---
 
 > ✍️ For more info or updates, refer to the shared [resource folder](https://drive.google.com/drive/folders/1fich77mtOneY6YfTKM0V2yyNBf5hHt3e?usp=sharing).
-

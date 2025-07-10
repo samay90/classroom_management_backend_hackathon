@@ -798,7 +798,7 @@ const getClassroomClass = ({ class_id }) => {
   });
 };
 const getUserClassProfile = ({ class_id, user_id }) => {
-  const q = `select c.user_id,c.role,c.updated_at,c.created_at,u.first_name,u.last_name,d.url,u.email,u.dob,u.city,u.country,u.state,u.phone_no,u.bio from 
+  const q = `select c.user_id,c.role,c.updated_at,c.created_at,u.first_name,u.last_name,d.url,u.email,u.dob,u.city,u.country,u.state,u.bio from 
     connections as c LEFT JOIN users as u ON u.user_id=c.user_id LEFT JOIN documents as d ON d.is_deleted=0 and u.user_id=d.user_id and d.doc_type='profile' 
     where c.is_deleted=0 and c.class_id=? and c.user_id=?;`;
   return new Promise((resolve, reject) => {
@@ -816,7 +816,7 @@ const getAssignmentSubmissions = ({ class_id, assignment_id }) => {
     const q = `
       SELECT 
           s.submission_id, s.user_id, s.marks, s.created_at, s.url as submission,
-          u.first_name, u.last_name, u.email, u.phone_no,
+          u.first_name, u.last_name, u.email,
           (
               SELECT d.url 
               FROM documents d 

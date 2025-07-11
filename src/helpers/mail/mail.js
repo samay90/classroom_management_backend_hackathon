@@ -3,7 +3,7 @@ const resetHTML = require("./template/resetpassword");
 require("dotenv").config();
 const sendMail = async ({to,subject,html}) => {
   try{
-    await fetch('https://clever-mailer.onrender.com/', {
+    await fetch('https://clever-mailer.onrender.com/send-mail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

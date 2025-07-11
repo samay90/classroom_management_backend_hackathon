@@ -232,7 +232,7 @@ authRouter.post("/reset/password",async (req,res)=>{
             const date = new Date();
             const expTime = date.getTime() + 1000 * 60 * 10;
             const slug = encrypt(JSON.stringify({email:email,exp:expTime.toString(),...getUserDetailsResponse}), process.env.ENCRYPTION_KEY);
-            sendResetPassword({email:email,link:`${process.env.CLIENT_URL}/auth/reset/password/${slug}`})
+            await sendResetPassword({email:email,link:`${process.env.CLIENT_URL}/auth/reset/password/${slug}`})
             res.send({
                 status:200,
                 error:false,

@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const otpHTML = require("./template/otp");
+const resetHTML = require("./template/resetpassword");
 require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -26,4 +27,21 @@ const sendOtp = ({ email, otp }) => {
     }
   );
 };
-module.exports = { sendOtp };
+const sendResetPassword = ({ email, link }) => {
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Request to reset your password",
+      html: resetHTML( email,link),
+    },
+    (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+      } else {
+        return true;
+      }
+    }
+  );
+};
+module.exports = { sendOtp, sendResetPassword};

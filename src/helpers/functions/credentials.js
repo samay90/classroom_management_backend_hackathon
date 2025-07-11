@@ -1,13 +1,6 @@
 const isPassword = (d)=>{
-    const specialCharacters = [
-      '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-      '-', '_', '+', '=', '[', ']', '{', '}', '|',
-      ':', ';', '"',  '<', '>', ',', '.', '?', '/'];
-    let validPasswordFlag = false
-    for (let i of d){
-      if (specialCharacters.includes(i)) validPasswordFlag=true
-    }
-    return validPasswordFlag
+    const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/;
+    return passwordRegex.test(d);
   }
   const isEmail = (email) =>{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

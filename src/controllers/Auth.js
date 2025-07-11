@@ -5,13 +5,14 @@ const lang = require("../../lang/lang.json")
 const lengthChecker = require("../helpers/functions/lengthChecker")
 const rules = require("../../rules/rules.json")
 const {isEmail,isPassword} = require("../helpers/functions/credentials");
-const { checkUniqueFlag, createUser, checkEmailOrPhoneNo, getPassword, getTokenDetails, deleteNotVerified, verifyCode, checkCode } = require('../modules/auth');
+const { checkUniqueFlag, createUser, checkEmailOrPhoneNo, getPassword, getTokenDetails, deleteNotVerified, verifyCode, checkCode, getUserDetails, updatePassword, validateCredentials } = require('../modules/auth');
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotEnv = require("dotenv")
 const isInteger = require("../helpers/functions/isIntegerString");
 const { encrypt, decrypt } = require('node-encryption');
-const { sendOtp } = require('../helpers/mail/mail');
+const { sendOtp, sendResetPassword } = require('../helpers/mail/mail');
+const { getTimeString } = require('../helpers/functions/timeToWordDate');
 dotEnv.config()
 
 authRouter.post("/signup",async (req,res)=>{
@@ -166,7 +167,7 @@ authRouter.post("/verify/:slug",async (req,res)=>{
         res.status(400).send({
             status:400,
             error:true,
-            message:lang.UNAUTHORISED_ACCESS,
+            message:lang.NO_SUCH_EXIST,
             data:{}
         })
     }else{
@@ -176,19 +177,19 @@ authRouter.post("/verify/:slug",async (req,res)=>{
             res.status(401).send({
                 status:401,
                 error:true,
-                message:lang.UNAUTHORISED_ACCESS,
+                message:lang.INVALID_CODE,
                 data:{}
             })
         }else{
-            const creationDate = new Date(checkCodeResponse[0].created_at)
+            const creationDate = new Date(parseInt(checkCodeResponse[0].created_at))
             const now = new Date()
             const timeDiff = now.getTime() - creationDate.getTime()
-            const diffMinutes = Math.round(timeDiff / 1000 / 60)
+            const diffMinutes = Math.round((timeDiff / 1000 )/ 60)
             if (diffMinutes>10){
                 res.status(401).send({
                     status:401,
                     error:true,
-                    message:lang.UNAUTHORISED_ACCESS,
+                    message:lang.REQUEST_TIMEOUT,
                     data:{}
                 })
                 
@@ -203,6 +204,96 @@ authRouter.post("/verify/:slug",async (req,res)=>{
                     data:{
                         token:token
                     }
+                })
+            }
+        }
+    }
+})
+authRouter.post("/reset/password",async (req,res)=>{
+    const {email} = req.body;
+    if (!email){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.PLEASE_ENTER+" email "+"!!",
+            data:{}
+        })
+    }else{
+        const checkEmailOrPhoneNoResponse = await checkEmailOrPhoneNo({authenticator:email});
+        if (checkEmailOrPhoneNoResponse.flag==0){
+            res.status(401).send({
+                status:401,
+                error:true,
+                message:lang.INVALID_AUTHENTICATOR,
+                data:{}
+            })
+        }else{
+            const getUserDetailsResponse = await getUserDetails({email});            
+            const date = new Date();
+            const expTime = date.getTime() + 1000 * 60 * 10;
+            const slug = encrypt(JSON.stringify({email:email,exp:expTime.toString(),...getUserDetailsResponse}), process.env.ENCRYPTION_KEY);
+            sendResetPassword({email:email,link:`${process.env.CLIENT_URL}/auth/reset/password/${slug}`})
+            res.send({
+                status:200,
+                error:false,
+                message:"Password reset link has been sent to your email!!",
+                data:{}
+            })
+        }
+    }
+})
+authRouter.post("/reset/password/:slug",async (req,res)=>{
+    const {password} = req.body;
+    let {slug} = req.params;
+    
+    if (!slug || !password || !isPassword(password)){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NO_SUCH_EXIST,
+            data:{}
+        })
+    }else{
+        const decrypted = decrypt(slug, process.env.ENCRYPTION_KEY);
+        const {email,exp,user_id,updated_at} = JSON.parse(decrypted);
+        const date = new Date();        
+        if (date.getTime()>parseInt(exp) || !parseInt(exp) || !email || !user_id || !updated_at){
+            res.status(401).send({
+                status:401,
+                error:true,
+                message:lang.REQUEST_TIMEOUT,
+                data:{}
+            })
+        }else{
+            const validateCredentialsResponse = await validateCredentials({email:email,user_id:user_id,updated_at:updated_at})
+            if (validateCredentialsResponse.flag===1){
+                const hassPass = bcrypt.hashSync(password,10)
+                const updatePasswordResponse = await updatePassword({email:email,password:hassPass})
+                if (updatePasswordResponse){
+                    const getTokenDetailsResponse = await getTokenDetails({authenticator:email})
+                    const token = jwt.sign({...getTokenDetailsResponse},process.env.TOKEN_SECRET,{expiresIn:"100hr"})
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Reset password successfully!!",
+                        data:{
+                            token:token
+                        }
+                    })
+                }else{
+                    res.status(501).send({
+                        status:501,
+                        error:true,
+                        message:lang.SOMETHING_WENT_WRONG,
+                        data:{}
+                    })
+                }
+            }else{
+                res.status(401).send({
+                    status:401,
+                    error:true,
+                    message:lang.INVALID_TOKEN,
+                    data:{}
                 })
             }
         }

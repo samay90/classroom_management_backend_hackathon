@@ -74,6 +74,30 @@ const getTokenDetails = ({authenticator}) =>{
         })
     })
 }
+const getUserDetails = ({email}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select user_id,updated_at from users where email=?;`;
+        db.query(q,[email],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const validateCredentials = ({email,user_id,updated_at}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as flag from users where email=? and user_id=? and updated_at=? and is_verified=1;`;
+        db.query(q,[email,user_id,updated_at],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
 const checkCode = ({email,code}) =>{
     return new Promise((resolve,reject)=>{
         const q = `select created_at from users where email=? and code=? and is_verified=0;`;
@@ -98,4 +122,16 @@ const verifyCode = ({email}) =>{
         })
     })
 }
-module.exports ={checkUniqueFlag,verifyCode,checkCode,getPassword,getTokenDetails,createUser,checkEmailOrPhoneNo,deleteNotVerified}
+const updatePassword = ({email,password}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update users set password=?,updated_at=? where email=?;`;
+        db.query(q,[password,getTimeString(),email],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports ={checkUniqueFlag,verifyCode,updatePassword,validateCredentials,getUserDetails,checkCode,getPassword,getTokenDetails,createUser,checkEmailOrPhoneNo,deleteNotVerified}

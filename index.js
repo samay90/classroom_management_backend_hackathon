@@ -5,10 +5,12 @@ const expressFileUpload = require("express-fileupload")
 const bodyParser = require("body-parser")
 const router = require("./src/routes/route")
 const uploadFile = require("./src/helpers/firebase/file")
+const pingURL = require("./src/workers/cron")
 
 app.use(expressFileUpload({
     createParentPath:true
 }))
+
 app.use(express.static(__dirname+"/public"))
 app.use(express.json())
 app.use(bodyParser.urlencoded({extended:true}))
@@ -17,7 +19,9 @@ app.use("/",router)
 app.get("/",(req,res)=>{
     res.send("<h1>Welcome to CMS</h1>")
 })
-app.listen(9920)
+app.listen(9920,()=>{
+    pingURL("https://clever-mailer.onrender.com/")
+})
 
 // Home: 192.168.0.106
 // My Mobile : 192.168.150.135

@@ -20,7 +20,7 @@ app.get("/",(req,res)=>{
     res.send("<h1>Welcome to CMS</h1>")
 })
 app.listen(9920,()=>{
-    pingURL("https://clever-mailer.onrender.com/")
+    pingURL("https://clever-alpha.onrender.com")
 })
 
 // Home: 192.168.0.106

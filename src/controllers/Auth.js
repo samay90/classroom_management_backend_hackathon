@@ -22,7 +22,7 @@ authRouter.post("/signup",async (req,res)=>{
         res.status(400).send({
             status:400,
             error:true,
-            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
             data:{}
         })
     }else{
@@ -135,7 +135,7 @@ authRouter.post("/login",async (req,res)=>{
                         res.send({
                             status:200,
                             error:false,
-                            message:"Logged In!!",
+                            message:"Logged In.",
                             data:{
                                 token:token
                             }
@@ -200,7 +200,7 @@ authRouter.post("/verify/:slug",async (req,res)=>{
                 res.send({
                     status:200,
                     error:false,
-                    message:"Successfully verified!!",
+                    message:"Successfully verified.",
                     data:{
                         token:token
                     }
@@ -215,7 +215,7 @@ authRouter.post("/reset/password",async (req,res)=>{
         res.status(400).send({
             status:400,
             error:true,
-            message:lang.PLEASE_ENTER+" email "+"!!",
+            message:lang.PLEASE_ENTER+" email "+".",
             data:{}
         })
     }else{
@@ -236,7 +236,7 @@ authRouter.post("/reset/password",async (req,res)=>{
             res.send({
                 status:200,
                 error:false,
-                message:"Password reset link has been sent to your email!!",
+                message:"Password reset link has been sent to your email.",
                 data:{}
             })
         }
@@ -275,7 +275,7 @@ authRouter.post("/reset/password/:slug",async (req,res)=>{
                     res.send({
                         status:200,
                         error:false,
-                        message:"Reset password successfully!!",
+                        message:"Reset password successfully.",
                         data:{
                             token:token
                         }

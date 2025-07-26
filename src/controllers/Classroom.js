@@ -83,7 +83,7 @@ classRouter.post("/:class_id/edit",async (req,res)=>{
                                     res.send({
                                         status:200,
                                         error:false,
-                                        message:"Classroom Updated!!",
+                                        message:"Classroom Updated.",
                                         data:{}
                                     })
                                 }else{
@@ -120,7 +120,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
             res.status(400).send({
                 status:400,
                 error:true,
-                message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+                message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
                 data:{}
             })
         }else{
@@ -128,7 +128,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
                 res.status(400).send({
                     status:400,
                     error:true,
-                    message:"Action type must be of either Manage (M) OR Remove (R)!!",
+                    message:"Action type must be of either Manage (M) OR Remove (R).",
                     data:{}
                 })
             }else{
@@ -138,7 +138,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
                         res.status(400).send({
                             status:400,
                             error:true,
-                            message:"Invalid action it should Teacher (T) or Student (S)!!",
+                            message:"Invalid action it should Teacher (T) or Student (S).",
                             data:{}
                         })
                     }else{
@@ -187,7 +187,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
                                             res.send({
                                                 status:200,
                                                 error:false,
-                                                message:"User removed!!",
+                                                message:"User removed.",
                                                 data:{}
                                             })
                                         }else{
@@ -203,7 +203,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
                                             res.status(400).send({
                                                 status:400,
                                                 error:true,
-                                                message:"Action should contain Teacher (T) or Student (S) only!!"
+                                                message:"Action should contain Teacher (T) or Student (S) only."
                                             })
                                         }else{
                                             const updateRoleResponse = await updateRole({class_id,user_id:body.user_id,role:body.action=="T"?"teacher":"student"})
@@ -211,7 +211,7 @@ classRouter.post("/:class_id/manage",async (req,res)=>{
                                                 res.send({
                                                     status:200,
                                                     error:false,
-                                                    message:"User role updated!!",
+                                                    message:"User role updated.",
                                                     data:{}
                                                 })
                                             }else{
@@ -324,7 +324,7 @@ classRouter.post("/:class_id/resource/new",async (req,res)=>{
                                         res.send({
                                             status:200,
                                             error:false,
-                                            message:"Resource added!!",
+                                            message:"Resource added.",
                                             data:addResourceResponse
                                         })
                                     }
@@ -470,7 +470,7 @@ classRouter.post("/:class_id/resource/:resource_id/delete",async (req,res)=>{
                             res.send({
                                 status:200,
                                 error:false,
-                                message:"Resource deleted!!",
+                                message:"Resource deleted.",
                                 data:{}
                             })
                         }else{
@@ -649,7 +649,7 @@ classRouter.post("/:class_id/resource/:resource_id/edit",async (req,res)=>{
                                             res.send({
                                                 status:200,
                                                 error:false,
-                                                message:"Resource updated!!",
+                                                message:"Resource updated.",
                                                 data:{}
                                             })
                                         }else{
@@ -741,7 +741,7 @@ classRouter.post("/:class_id/resource/:resource_id/query/ask",async (req,res)=>{
                                     res.send({
                                         status:200,
                                         error:false,
-                                        message:"Asked your query!!",
+                                        message:"Asked your query.",
                                         data:{}
                                     })
                                 }else{
@@ -849,7 +849,7 @@ classRouter.post("/:class_id/resource/:resource_id/query/:query_id/edit",async (
                                             res.send({
                                                 status:200,
                                                 error:false,
-                                                message:"Edited your query!!",
+                                                message:"Edited your query.",
                                                 data:{}
                                             })
                                         }else{
@@ -941,7 +941,7 @@ classRouter.delete("/:class_id/resource/:resource_id/query/:query_id/delete",asy
                                     res.send({
                                         status:200,
                                         error:false,
-                                        message:"Deleted your query!!",
+                                        message:"Deleted your query.",
                                         data:{}
                                     })
                                 }else{
@@ -1049,7 +1049,7 @@ classRouter.post("/:class_id/resource/:resource_id/query/:query_id/solve",async 
                                             res.send({
                                                 status:200,
                                                 error:false,
-                                                message:"Solved the query!!",
+                                                message:"Solved the query.",
                                                 data:{}
                                             })
                                         }else{
@@ -1095,7 +1095,7 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                 res.status(400).send({
                     status:400,
                     error:true,
-                    message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+                    message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
                     data:{}
                 })
             }else{
@@ -1170,7 +1170,7 @@ classRouter.post("/:class_id/resource/:resource_id/attendance/mark",async (req,r
                                                         res.send({
                                                             status:200,
                                                             error:false,
-                                                            message:"Marked attendance!!",
+                                                            message:"Marked attendance.",
                                                             data:{}
                                                         })
                                                     }else{
@@ -1219,7 +1219,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
             res.status(400).send({
                 status:400,
                 error:true,
-                message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+                message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
                 data:{}
             })
         }else{
@@ -1292,7 +1292,7 @@ classRouter.post("/:class_id/assignment/new",async (req,res)=>{
                                         res.send({
                                             status:200,
                                             error:false,
-                                            message:"Assigned to students!!",
+                                            message:"Assigned to students.",
                                             data:{}
                                         })
                                     }else{
@@ -1470,7 +1470,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/edit",async (req,res)=>{
                                                     res.send({
                                                         status:200,
                                                         error:false,
-                                                        message:"Assignment updated!!",
+                                                        message:"Assignment updated.",
                                                         data:{}
                                                     })
                                                 }else{
@@ -1546,7 +1546,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/delete",async (req,res)=>
                             res.send({
                                 status:200,
                                 error:false,
-                                message:"Assignment deleted!!",
+                                message:"Assignment deleted.",
                                 data:{}
                             })
                         }else{
@@ -1605,7 +1605,7 @@ classRouter.get('/:class_id/assignment/:assignment_id',async (req,res)=>{
                         res.send({
                             status:200,
                             error:false,
-                            message:"Assignment fetched!!",
+                            message:"Assignment fetched.",
                             data:getAssignmentResponse
                         })
                     }else{
@@ -1707,7 +1707,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/submit",async (req,res)=>
                                                 res.send({
                                                     status:200,
                                                     error:false,
-                                                    message:"Assignment submitted!!",
+                                                    message:"Assignment submitted.",
                                                     data:{
                                                         path:paths
                                                     }
@@ -1833,7 +1833,7 @@ classRouter.post("/:class_id/assignment/:assignment_id/submission/:submission_id
                                         res.send({
                                             status:200,
                                             error:false,
-                                            message:"Marks marked!!",
+                                            message:"Marks marked.",
                                             data:{}
                                         })
                                     }else{
@@ -2012,7 +2012,7 @@ classRouter.get("/:class_id/sensitive",async (req,res)=>{
                     res.send({
                         status:200,
                         error:false,
-                        message:"Classroom sensitive fetched!!",
+                        message:"Classroom sensitive fetched.",
                         data:getClassroomSensitiveResponse
                     })
                 }else{
@@ -2059,7 +2059,7 @@ classRouter.get("/:class_id/class",async (req,res)=>{
                 res.send({
                     status:200,
                     error:false,
-                    message:"Classroom class fetched!!",
+                    message:"Classroom class fetched.",
                     data:getClassroomClassResponse
                 })
             }else{
@@ -2099,7 +2099,7 @@ classRouter.get("/:class_id/class/:user_id",async (req,res)=>{
                 res.send({
                     status:200,
                     error:false,
-                    message:"Classroom class fetched!!",
+                    message:"Classroom class fetched.",
                     data:getUserClassProfileResponse
                 })
             }else{
@@ -2150,7 +2150,7 @@ classRouter.get("/:class_id/assignment/:assignment_id/submissions",async (req,re
                         res.send({
                             status:200,
                             error:false,
-                            message:"Assignment submissions fetched!!",
+                            message:"Assignment submissions fetched.",
                             data:getAssignmentSubmissionsResponse
                         })
                     }else{
@@ -2208,7 +2208,7 @@ classRouter.get("/:class_id/resource/:resource_id/attendances",async (req,res)=>
                     res.send({
                         status:200,
                         error:false,
-                        message:"Resource attendances fetched!!",
+                        message:"Resource attendances fetched.",
                         data:getResourceAttendancesResponse
                     })
                 }else{
@@ -2261,7 +2261,7 @@ classRouter.get("/:class_id/resource/:resource_id/queries/all",async (req,res)=>
                         res.send({
                             status:200,
                             error:false,
-                            message:"Resource queries fetched!!",
+                            message:"Resource queries fetched.",
                             data:getResourceQueriesResponse
                         })
                     }else{

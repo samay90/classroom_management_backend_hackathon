@@ -125,7 +125,7 @@ userRouter.post("/profile/update",async (req,res)=>{
                                     res.send({
                                         status:200,
                                         error:false,
-                                        message:"Profile Updated!!",
+                                        message:"Profile Updated.",
                                         data:{}
                                     })
                                 }else{
@@ -199,7 +199,7 @@ userRouter.post("/class/new",async (req,res)=>{
                     res.send({
                         status:200,
                         error:false,
-                        message:"Classroom Created!!",
+                        message:"Classroom Created.",
                         data:{
                             join_code:joinCode,
                         }
@@ -225,7 +225,7 @@ userRouter.post("/class/new",async (req,res)=>{
         res.status(400).send({
             status:400,
             error:true,
-            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
             data:{}
         })
     }
@@ -238,7 +238,7 @@ userRouter.post("/class/join",async (req,res)=>{
         res.status(400).send({
             status:400,
             error:true,
-            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+"!!",
+            message:lang.PLEASE_ENTER+checkerResponse.empty.join(", ")+".",
             data:{}
         })
     }else{
@@ -266,7 +266,7 @@ userRouter.post("/class/join",async (req,res)=>{
                                 res.send({
                                     status:200,
                                     error:false,
-                                    message:"Join Classroom!!",
+                                    message:"Joined Classroom.",
                                     data:{}
                                 })
                             }else{
